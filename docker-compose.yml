@@ -27,6 +27,7 @@ services:
       database:
         condition: service_healthy
     environment:
+      LOBBY_CLOSED_HOURS: ${LOBBY_CLOSED_HOURS:-12}
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-crousty}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-crousty}?schema=public

@@ -3,7 +3,7 @@ import { config } from '../config.js';
 import type { CreateSessionInput } from '../schemas/index.js';
 import { AppError, Conflict, Forbidden, NotFound, SessionClosed, Unauthorized } from '../utils/errors.js';
 import { generateToken, hashToken, nameKey, randomSessionCode, verifyToken } from '../utils/tokens.js';
-import { broadcast } from '../sockets/realtime.js';
+import { broadcast, broadcastLobby  } from '../sockets/realtime.js';
 import { loadPublicState, type PublicSessionState } from './serializer.js';
 
 /** Verrou applicatif PostgreSQL qui sérialise l'attribution des codes. */
@@ -37,7 +37,7 @@ export async function createSession(input: CreateSessionInput) {
   const creatorToken = generateToken();
   const participantToken = generateToken();
   const expiresAt = new Date(
-    Math.max(Date.now(), input.scheduledAt.getTime()) + config.SESSION_TTL_HOURS * 3_600_000,
+      Math.max(Date.now(), input.scheduledAt.getTime()) + config.SESSION_TTL_HOURS * 3_600_000,
   );
 
   const { sessionId, participantId } = await prisma.$transaction(async (tx) => {
@@ -68,6 +68,7 @@ export async function createSession(input: CreateSessionInput) {
   });
 
   const state = (await loadPublicState(sessionId))!;
+  broadcastLobby(state);
   return { state, participantId, participantToken, creatorToken };
 }
 

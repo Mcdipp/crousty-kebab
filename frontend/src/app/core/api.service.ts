@@ -12,6 +12,7 @@ import type {
   ParticipationChoice,
   SessionState,
   SessionType,
+  SessionSummary,
 } from './models';
 import { IdentityService } from './identity.service';
 
@@ -57,6 +58,10 @@ export class ApiService {
     } catch (e) {
       throw toApiError(e);
     }
+  }
+
+  listSessions() {
+    return this.call(firstValueFrom(this.http.get<{ sessions: SessionSummary[] }>('/api/sessions')));
   }
 
   getConfig() {

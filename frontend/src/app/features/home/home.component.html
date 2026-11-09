@@ -1,9 +1,9 @@
 <section class="hero">
   <div class="container hero__inner">
-    <p class="hero__kicker">Commandes groupées entre potes</p>
-    <h1>Salut ! Comment tu t’appelles&nbsp;?</h1>
+    <p class="hero__kicker">Commandes groupées entre chepos max</p>
+    <h1>TRES ! Comment tu t’appelles&nbsp;?</h1>
     <div class="field name-field">
-      <label for="name" class="visually-hidden">Votre prénom ou pseudo</label>
+      <label for="name" class="visually-hidden">Ton prénom ou pseudo</label>
       <input
         id="name"
         class="input input--hero"
@@ -25,6 +25,71 @@
 </section>
 
 <div class="container">
+  <!-- ===== Sessions en cours (système principal) ===== -->
+  <section class="lobby card" aria-labelledby="lobby-title">
+    <div class="lobby__head">
+      <h2 id="lobby-title">Sessions en cours</h2>
+      <span class="live" [class.live--off]="connection() !== 'online'" role="status">
+        <span class="live__dot" aria-hidden="true"></span>
+        {{ connection() === 'online' ? 'En direct' : 'Connexion…' }}
+      </span>
+    </div>
+
+    @if (sessionsLoading()) {
+      <div class="spinner" role="status" aria-label="Chargement des sessions"></div>
+    } @else if (sessionsError() && sessions().length === 0) {
+      <p class="error-text" role="alert">{{ sessionsError() }}</p>
+    } @else if (sessions().length === 0) {
+      <p class="lobby__empty">Aucune session en cours pour l’instant.<br />Crée la première juste en dessous ! 👇</p>
+    } @else {
+      <p class="muted lobby__count">
+        {{ openCount() }} session{{ openCount() > 1 ? 's' : '' }} ouverte{{ openCount() > 1 ? 's' : '' }}
+      </p>
+      <ul class="sessions">
+        @for (s of sessions(); track s.id) {
+          <li class="sess" [class.sess--closed]="s.status === 'CLOSED'" [class.sess--tacos]="s.type === 'TACOS_KEBAB'">
+            <img class="sess__img" [src]="s.type === 'CROUSTY' ? 'images/crousty-hero.png' : 'images/tacos-kebab-hero.png'"
+                 alt="" width="88" height="57" />
+            <div class="sess__body">
+              <div class="sess__title">
+                <strong>{{ s.type === 'CROUSTY' ? 'Crousty' : 'Tacos / Kebab' }}</strong>
+                <span class="sess__code">#{{ s.code }}</span>
+              </div>
+              <div class="sess__meta">
+                <span><app-icon name="clock" [size]="14" /> {{ formatHour(s.scheduledAt) }}</span>
+                <span>par <strong>{{ s.creatorName }}</strong>@if (isMine(s)) { <em> (toi)</em> }</span>
+              </div>
+              <div class="sess__meta">
+                <span><app-icon name="users" [size]="14" /> {{ s.participantCount }}</span>
+                @if (s.type === 'CROUSTY') {
+                  <span>🍗 {{ s.itemCount }} Crousty</span>
+                } @else {
+                  <span>🌯 {{ s.itemCount }} inscrit{{ s.itemCount > 1 ? 's' : '' }}</span>
+                }
+                @if (s.status === 'OPEN') {
+                  <span class="badge badge--open">Ouverte</span>
+                } @else {
+                  <span class="badge badge--muted"><app-icon name="lock" [size]="12" /> Clôturée{{ s.closedAt ? ' à ' + formatHour(s.closedAt) : '' }}</span>
+                }
+              </div>
+              @if (s.description) { <p class="sess__desc">{{ s.description }}</p> }
+            </div>
+            <button type="button" class="btn sess__btn"
+                    [class.btn--red]="s.status === 'OPEN' && s.type === 'TACOS_KEBAB'"
+                    [class.btn--ghost]="s.status === 'CLOSED'"
+                    (click)="openSession(s)"
+                    [attr.aria-label]="(s.status === 'CLOSED' ? 'Voir la session ' : isMember(s) ? 'Ouvrir la session ' : 'Rejoindre la session ') + (s.type === 'CROUSTY' ? 'Crousty ' : 'Tacos Kebab ') + s.code">
+              @if (s.status === 'CLOSED') { Voir }
+              @else if (isMember(s)) { Ouvrir <app-icon name="arrowRight" [size]="16" /> }
+              @else { <app-icon name="login" [size]="16" /> Rejoindre }
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <h2 class="section-title">Créer une session</h2>
   <section class="categories" aria-label="Que veux-tu organiser ?">
     <article class="cat cat--crousty">
       <img class="cat__img" src="images/crousty-hero.png" alt="Boîte de Crousty, morceaux de poulet croustillant" width="400" height="260" />
@@ -49,8 +114,9 @@
     </article>
   </section>
 
+
   <section class="join card" aria-labelledby="join-title">
-    <h2 id="join-title">Rejoindre une session</h2>
+    <h2 id="join-title">Tu as un code ?</h2>
     <p class="muted">Un pote t’a envoyé un code à 4 chiffres ? Entre-le ici.</p>
     <form class="join__form" (submit)="$event.preventDefault(); join()">
       <label for="code" class="visually-hidden">Code de session à 4 chiffres</label>
@@ -69,17 +135,11 @@
         aria-describedby="join-error"
       />
       <button type="submit" class="btn btn--lg btn--dark" [disabled]="joining()">
-        @if (joining()) { Recherche… } @else { <app-icon name="login" /> Rejoindre une session }
+        @if (joining()) { Recherche… } @else { <app-icon name="login" /> Rejoindre avec le code }
       </button>
     </form>
     @if (joinError()) {
       <p id="join-error" class="error-text" role="alert">{{ joinError() }}</p>
     }
-  </section>
-
-  <section class="how" aria-label="Comment ça marche">
-    <div><span>1</span>Entre ton prénom, sans compte ni mot de passe.</div>
-    <div><span>2</span>Crée une session et partage le code à 4 chiffres.</div>
-    <div><span>3</span>Tout le monde commande, la liste se met à jour en direct.</div>
   </section>
 </div>

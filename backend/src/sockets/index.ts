@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { corsOrigins } from '../config.js';
 import { prisma } from '../db.js';
 import { loadPublicState } from '../services/serializer.js';
-import { roomOf, setIo } from './realtime.js';
+import { listLobbySessions } from '../services/lobby.service.js';
+import { LOBBY_ROOM, roomOf, setIo } from './realtime.js';
 
 const joinPayload = z.object({ sessionId: z.uuid() });
 
@@ -48,6 +49,20 @@ export function attachSockets(httpServer: HttpServer): Server {
     socket.on('session:leave', async (raw: unknown) => {
       const parsed = joinPayload.safeParse(raw);
       if (parsed.success) await socket.leave(roomOf(parsed.data.sessionId));
+    });
+
+    socket.on('lobby:join', async (_raw: unknown, ack?: (res: unknown) => void) => {
+      const reply = typeof ack === 'function' ? ack : () => undefined;
+      try {
+        await socket.join(LOBBY_ROOM);
+        reply({ ok: true, sessions: await listLobbySessions() });
+      } catch {
+        reply({ ok: false, error: 'Erreur serveur.' });
+      }
+    });
+
+    socket.on('lobby:leave', async () => {
+      await socket.leave(LOBBY_ROOM);
     });
   });
 
