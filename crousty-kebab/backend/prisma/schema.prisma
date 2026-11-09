@@ -1,0 +1,117 @@
+// Modèle de données — Crousty & Kebab
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  runtime      = "nodejs"
+  moduleFormat = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SessionType {
+  CROUSTY
+  TACOS_KEBAB
+}
+
+enum SessionStatus {
+  OPEN
+  CLOSED
+}
+
+enum FoodChoice {
+  TACOS
+  KEBAB
+  BOTH
+}
+
+enum ParticipationChoice {
+  TACOS
+  KEBAB
+}
+
+enum CroustyProduct {
+  NATURE
+  PIQUANT
+  SUCRE
+  SUCRE_PIQUANT
+}
+
+model Session {
+  id               String        @id @default(uuid()) @db.Uuid
+  code             String        @db.Char(4)
+  type             SessionType
+  foodChoice       FoodChoice?
+  scheduledAt      DateTime
+  description      String?       @db.VarChar(300)
+  status           SessionStatus @default(OPEN)
+  creatorName      String        @db.VarChar(30)
+  creatorTokenHash String        @db.Char(64)
+  createdAt        DateTime      @default(now())
+  closedAt         DateTime?
+  /// Au-delà de cette date, le code à 4 chiffres est libéré (la session reste en base).
+  expiresAt        DateTime
+
+  participants   Participant[]
+  orders         Order[]
+  participations Participation[]
+
+  @@index([code, expiresAt])
+  @@index([status])
+}
+
+model Participant {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @db.Uuid
+  name      String   @db.VarChar(30)
+  /// Nom normalisé (minuscules, sans espaces superflus) pour l'unicité.
+  nameKey   String   @db.VarChar(30)
+  tokenHash String   @db.Char(64)
+  isCreator Boolean  @default(false)
+  joinedAt  DateTime @default(now())
+
+  session        Session        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  orders         Order[]
+  participations Participation[]
+
+  @@unique([sessionId, nameKey])
+  @@index([tokenHash])
+}
+
+model Order {
+  id            String         @id @default(uuid()) @db.Uuid
+  sessionId     String         @db.Uuid
+  /// Participant qui a saisi la commande (propriétaire, seul autorisé à la modifier avec le créateur).
+  participantId String         @db.Uuid
+  /// Personne pour qui est la commande (participant ou nom libre).
+  targetName    String         @db.VarChar(30)
+  productType   CroustyProduct
+  quantity      Int
+  notes         String?        @db.VarChar(200)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  session     Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Restrict)
+
+  @@index([sessionId])
+  @@index([participantId])
+}
+
+model Participation {
+  id            String              @id @default(uuid()) @db.Uuid
+  sessionId     String              @db.Uuid
+  participantId String              @db.Uuid
+  choice        ParticipationChoice
+  notes         String?             @db.VarChar(200)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  session     Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, participantId])
+  @@index([sessionId])
+}

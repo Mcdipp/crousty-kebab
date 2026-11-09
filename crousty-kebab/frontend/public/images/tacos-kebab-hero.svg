@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260"><defs>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c15a"/><stop offset=".55" stop-color="#e3922c"/><stop offset="1" stop-color="#b6621a"/></linearGradient>
+  <linearGradient id="spicy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4a24a"/><stop offset=".55" stop-color="#df5a22"/><stop offset="1" stop-color="#a8301a"/></linearGradient>
+  <linearGradient id="glazed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3b04e"/><stop offset=".5" stop-color="#c8701f"/><stop offset="1" stop-color="#8f4512"/></linearGradient>
+  <linearGradient id="glazedhot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f19a46"/><stop offset=".5" stop-color="#c6481f"/><stop offset="1" stop-color="#8a2614"/></linearGradient>
+  <linearGradient id="box" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a52222"/><stop offset="1" stop-color="#6e1414"/></linearGradient>
+  <radialGradient id="bg" cx=".75" cy=".15" r="1"><stop offset="0" stop-color="#ffd2a8"/><stop offset="1" stop-color="#ffe9d4"/></radialGradient>
+  <radialGradient id="bgred" cx=".75" cy=".15" r="1"><stop offset="0" stop-color="#f8c0a8"/><stop offset="1" stop-color="#fbe3d6"/></radialGradient>
+  <linearGradient id="tortilla" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2d394"/><stop offset="1" stop-color="#d59c4f"/></linearGradient>
+</defs><rect width="400" height="260" fill="url(#bgred)"/><ellipse cx="128.0" cy="228.8" rx="96.0" ry="10" fill="#000" opacity=".15"/>
+<g transform="translate(40.0 88.4) rotate(-8)">
+<rect x="0" y="0" width="190" height="120" rx="26" fill="url(#tortilla)" stroke="#b5803a" stroke-width="2"/>
+<path d="M14,60 Q95,40 176,60" stroke="#b5803a" stroke-width="2" fill="none" opacity=".6"/>
+<path d="M30,16 L10,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+<path d="M10,16 L30,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".3"/>
+<path d="M70,16 L50,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+<path d="M50,16 L70,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".3"/>
+<path d="M110,16 L90,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+<path d="M90,16 L110,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".3"/>
+<path d="M150,16 L130,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+<path d="M130,16 L150,104" stroke="#8a5a22" stroke-width="6" stroke-linecap="round" opacity=".3"/>
+<path d="M40,118 q8,16 16,0 q6,10 12,0 q10,14 18,0" fill="#ffcf3f" stroke="#e0a613" stroke-width="1.5"/>
+</g>
+<rect x="32.0" y="161.5" width="10" height="56.9" rx="3" fill="#f7c948" stroke="#d9a21b" stroke-width="1" transform="rotate(1.4 32.0 218.4)"/>
+<rect x="46.0" y="150.2" width="10" height="68.2" rx="3" fill="#f7c948" stroke="#d9a21b" stroke-width="1" transform="rotate(-0.8 46.0 218.4)"/>
+<rect x="60.0" y="160.2" width="10" height="58.2" rx="3" fill="#f7c948" stroke="#d9a21b" stroke-width="1" transform="rotate(2.1 60.0 218.4)"/>
+<rect x="74.0" y="168.0" width="10" height="50.4" rx="3" fill="#f7c948" stroke="#d9a21b" stroke-width="1" transform="rotate(0.3 74.0 218.4)"/>
+<rect x="88.0" y="157.3" width="10" height="61.1" rx="3" fill="#f7c948" stroke="#d9a21b" stroke-width="1" transform="rotate(7.0 88.0 218.4)"/>
+<rect x="102.0" y="170.1" width="10" height="48.3" rx="3" fill="#f7c948" stroke="#d9a21b" stroke-width="1" transform="rotate(-4.7 102.0 218.4)"/>
+<rect x="116.0" y="170.2" width="10" height="48.2" rx="3" fill="#f7c948" stroke="#d9a21b" stroke-width="1" transform="rotate(7.4 116.0 218.4)"/>
+<path d="M20.0,187.2 L120.0,187.2 L108.0,239.20000000000002 L32.0,239.20000000000002Z" fill="#8e1b1b"/>
+<path d="M26.0,202.8 L113.99999999999999,202.8" stroke="#fff6e8" stroke-width="4"/>
+<ellipse cx="280.0" cy="239.20000000000002" rx="68.0" ry="10" fill="#000" opacity=".15"/>
+<path d="M210.0,70.0 Q280.0,35.0 350.0,70.0 L298.0,234.0 Q280.0,244.39999999999998 262.0,234.0Z" fill="url(#tortilla)" stroke="#b5803a" stroke-width="2"/>
+<path d="M222.0,68.0 q7,-25 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M236.0,68.0 q7,-24 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M250.0,68.0 q7,-14 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M264.0,68.0 q7,-23 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M278.0,68.0 q7,-20 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M292.0,68.0 q7,-21 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M306.0,68.0 q7,-24 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M320.0,68.0 q7,-25 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M334.0,68.0 q7,-23 14,0" fill="#9c4f22" stroke="#6e3412" stroke-width="1.2"/>
+<path d="M225.0,60.0 q10,-22 22,-4 q-8,10 -22,4z" fill="#59b847" stroke="#3a8a2c" stroke-width="1"/>
+<path d="M246.0,60.0 q10,-22 22,-4 q-8,10 -22,4z" fill="#59b847" stroke="#3a8a2c" stroke-width="1"/>
+<path d="M267.0,60.0 q10,-22 22,-4 q-8,10 -22,4z" fill="#59b847" stroke="#3a8a2c" stroke-width="1"/>
+<path d="M288.0,60.0 q10,-22 22,-4 q-8,10 -22,4z" fill="#59b847" stroke="#3a8a2c" stroke-width="1"/>
+<path d="M309.0,60.0 q10,-22 22,-4 q-8,10 -22,4z" fill="#59b847" stroke="#3a8a2c" stroke-width="1"/>
+<path d="M330.0,60.0 q10,-22 22,-4 q-8,10 -22,4z" fill="#59b847" stroke="#3a8a2c" stroke-width="1"/>
+<circle cx="250.0" cy="50.0" r="11" fill="#e8402f"/><circle cx="250.0" cy="50.0" r="6" fill="#ff7a68"/>
+<circle cx="302.0" cy="50.0" r="11" fill="#e8402f"/><circle cx="302.0" cy="50.0" r="6" fill="#ff7a68"/>
+<path d="M272.0,44.0 q10,-10 20,0" stroke="#f3e6ff" stroke-width="4" fill="none" stroke-linecap="round"/>
+<path d="M228.0,120.0 L332.0,120.0 L298.0,234.0 Q280.0,244.39999999999998 262.0,234.0Z" fill="#fff6e8" stroke="#e6d4b8" stroke-width="1.5"/>
+<path d="M236.0,138.0 L324.0,138.0" stroke="#8e1b1b" stroke-width="5"/>
+<text x="280.0" y="168.0" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="17" font-weight="900" fill="#8e1b1b">KEBAB</text>
+<circle cx="200.0" cy="52.0" r="7" fill="#fff"/><circle cx="216.0" cy="31.2" r="4" fill="#fff"/>
+<circle cx="188.0" cy="26.0" r="5" fill="#e8402f"/></svg>

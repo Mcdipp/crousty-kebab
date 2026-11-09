@@ -1,0 +1,85 @@
+<section class="hero">
+  <div class="container hero__inner">
+    <p class="hero__kicker">Commandes groupées entre potes</p>
+    <h1>Salut ! Comment tu t’appelles&nbsp;?</h1>
+    <div class="field name-field">
+      <label for="name" class="visually-hidden">Votre prénom ou pseudo</label>
+      <input
+        id="name"
+        class="input input--hero"
+        type="text"
+        autocomplete="nickname"
+        enterkeyhint="done"
+        maxlength="30"
+        placeholder="Votre prénom ou pseudo"
+        [value]="name()"
+        (input)="onNameInput($any($event.target).value)"
+        [attr.aria-invalid]="!!nameError()"
+        aria-describedby="name-error"
+      />
+      @if (nameError()) {
+        <p id="name-error" class="error-text error-text--light" role="alert">{{ nameError() }}</p>
+      }
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <section class="categories" aria-label="Que veux-tu organiser ?">
+    <article class="cat cat--crousty">
+      <img class="cat__img" src="images/crousty-hero.svg" alt="Boîte de Crousty, morceaux de poulet croustillant" width="400" height="260" />
+      <div class="cat__body">
+        <h2>Crousty</h2>
+        <p>Une commande groupée de Crousty : chacun ajoute ce qu’il veut, quelqu’un appelle, tout le monde mange.</p>
+        <button type="button" class="btn btn--lg btn--block" (click)="create('crousty')">
+          <app-icon name="bag" /> Commander un Crousty
+        </button>
+      </div>
+    </article>
+
+    <article class="cat cat--tacos">
+      <img class="cat__img" src="images/tacos-kebab-hero.svg" alt="Un tacos et un kebab" width="400" height="260" />
+      <div class="cat__body">
+        <h2>Tacos / Kebab</h2>
+        <p>On sort chercher des tacos ou un kebab ? Vois en un coup d’œil qui vient et ce qu’il prend.</p>
+        <button type="button" class="btn btn--lg btn--block btn--red" (click)="create('tacos-kebab')">
+          <app-icon name="users" /> Organiser une sortie Tacos / Kebab
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <section class="join card" aria-labelledby="join-title">
+    <h2 id="join-title">Rejoindre une session</h2>
+    <p class="muted">Un pote t’a envoyé un code à 4 chiffres ? Entre-le ici.</p>
+    <form class="join__form" (submit)="$event.preventDefault(); join()">
+      <label for="code" class="visually-hidden">Code de session à 4 chiffres</label>
+      <input
+        id="code"
+        class="input input--code"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        autocomplete="one-time-code"
+        maxlength="4"
+        placeholder="0000"
+        [value]="code()"
+        (input)="onCodeInput($any($event.target).value)"
+        [attr.aria-invalid]="!!joinError()"
+        aria-describedby="join-error"
+      />
+      <button type="submit" class="btn btn--lg btn--dark" [disabled]="joining()">
+        @if (joining()) { Recherche… } @else { <app-icon name="login" /> Rejoindre une session }
+      </button>
+    </form>
+    @if (joinError()) {
+      <p id="join-error" class="error-text" role="alert">{{ joinError() }}</p>
+    }
+  </section>
+
+  <section class="how" aria-label="Comment ça marche">
+    <div><span>1</span>Entre ton prénom, sans compte ni mot de passe.</div>
+    <div><span>2</span>Crée une session et partage le code à 4 chiffres.</div>
+    <div><span>3</span>Tout le monde commande, la liste se met à jour en direct.</div>
+  </section>
+</div>

@@ -1,0 +1,116 @@
+@if (store.loading()) {
+  <div class="spinner" role="status" aria-label="Chargement de la session"></div>
+} @else if (store.loadError()) {
+  <div class="container narrow">
+    <div class="card notfound" role="alert">
+      <app-icon name="alert" [size]="40" />
+      <h1>Oups !</h1>
+      <p>{{ store.loadError() }}</p>
+      <a routerLink="/" class="btn btn--lg"><app-icon name="home" /> Retour à l’accueil</a>
+    </div>
+  </div>
+} @else if (s(); as session) {
+  <section class="banner" [class.banner--tacos]="isTacos()">
+    <div class="container">
+      <div class="banner__top">
+        <a routerLink="/" class="icon-btn" aria-label="Retour à l’accueil"><app-icon name="arrowLeft" /></a>
+        <span class="live" [class.live--off]="store.connection() !== 'online'" role="status">
+          <app-icon [name]="store.connection() === 'online' ? 'wifi' : 'wifiOff'" [size]="16" />
+          {{ store.connection() === 'online' ? 'En direct' : store.connection() === 'connecting' ? 'Connexion…' : 'Hors ligne' }}
+        </span>
+      </div>
+
+      <h1 class="banner__title">{{ heading() }} <span>#{{ session.code }}</span></h1>
+      <div class="banner__meta">
+        <span class="meta"><app-icon name="clock" [size]="18" /> Heure prévue : <strong>{{ hour() }}</strong></span>
+        @if (session.status === 'OPEN') {
+          <span class="badge badge--open">● OPEN — Commandes ouvertes</span>
+        } @else {
+          <span class="badge badge--closed"><app-icon name="lock" [size]="14" /> CLOSED — Clôturée</span>
+        }
+      </div>
+      <p class="banner__by">Organisé par <strong>{{ session.creatorName }}</strong>
+        @if (session.description) { · {{ session.description }} }
+      </p>
+
+      <app-share-code [code]="session.code"
+        [title]="isTacos() ? 'On va au tacos / kebab, tu viens ?' : 'Commande Crousty groupée, tu prends quoi ?'" />
+
+      @if (!isTacos()) {
+        <a class="phone" [href]="'tel:' + croustyPhone()">
+          <app-icon name="phone" [size]="22" />
+          <span><small>Numéro à appeler</small><strong>{{ phoneDisplay() }}</strong></span>
+        </a>
+      }
+    </div>
+  </section>
+
+  <div class="container content">
+    @if (session.status === 'CLOSED') {
+      <div class="closed" role="alert" [class.closed--fresh]="store.justClosed()">
+        <span class="closed__emoji" aria-hidden="true">🎉</span>
+        <div>
+          <strong>Commande clôturée ! Le restaurant a été contacté. Merci à tous !</strong>
+          <p>Clôturée à {{ closedHour() }}. La liste finale reste visible ci-dessous.</p>
+        </div>
+      </div>
+    }
+
+    @if (needsJoin()) {
+      <section class="card joinbox" aria-labelledby="join-h">
+        @if (session.status === 'OPEN') {
+          <h2 id="join-h">Rejoindre la session</h2>
+          <p class="muted">Entre ton prénom pour participer, sans compte.</p>
+          <form class="joinbox__form" (submit)="$event.preventDefault(); join()">
+            <label for="join-name" class="visually-hidden">Votre prénom ou pseudo</label>
+            <input id="join-name" class="input" maxlength="30" autocomplete="nickname" placeholder="Votre prénom ou pseudo"
+                   [value]="joinName()" (input)="joinName.set($any($event.target).value)" />
+            <button type="submit" class="btn btn--lg" [disabled]="store.busy()">
+              <app-icon name="login" /> Rejoindre
+            </button>
+          </form>
+          @if (joinError()) { <p class="error-text" role="alert">{{ joinError() }}</p> }
+        } @else {
+          <h2 id="join-h">Session clôturée</h2>
+          <p class="muted">Cette session est clôturée : il n’est plus possible de la rejoindre. Voici la liste finale.</p>
+        }
+      </section>
+    }
+
+    @if (isTacos()) {
+      <app-tacos-board />
+    } @else {
+      <app-crousty-board />
+    }
+
+    @if (store.isCreator()) {
+      <section class="admin card" aria-labelledby="admin-h">
+        <h2 id="admin-h">Espace créateur</h2>
+        @if (session.status === 'OPEN') {
+          <p class="muted">Quand tu as appelé le restaurant, clôture la commande : plus personne ne pourra la modifier.</p>
+          <button type="button" class="btn btn--lg btn--block btn--red" (click)="confirmClose.set(true)" [disabled]="store.busy()">
+            <app-icon name="phone" /> J’AI APPELÉ LE RESTAURANT — FERMER LA COMMANDE
+          </button>
+        } @else {
+          <p class="muted">Un oubli ? Tu peux rouvrir la commande pour permettre des modifications.</p>
+          <button type="button" class="btn btn--block btn--dark" (click)="store.reopen()" [disabled]="store.busy()">
+            <app-icon name="unlock" /> Rouvrir la commande
+          </button>
+        }
+      </section>
+    } @else if (session.status === 'OPEN') {
+      <p class="muted center">Seul {{ session.creatorName }} (créateur) peut clôturer la commande.</p>
+    }
+  </div>
+
+  <app-modal title="Clôturer la commande ?" [open]="confirmClose()" (closed)="confirmClose.set(false)">
+    <p>Êtes-vous sûr d’avoir appelé le restaurant et de vouloir clôturer la commande&nbsp;?</p>
+    <p class="muted">Plus personne ne pourra ajouter, modifier ou supprimer de commande.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn--ghost" (click)="confirmClose.set(false)">Annuler</button>
+      <button type="button" class="btn btn--red" (click)="doClose()" [disabled]="store.busy()">
+        <app-icon name="lock" /> Oui, clôturer
+      </button>
+    </div>
+  </app-modal>
+}

@@ -1,0 +1,165 @@
+<section aria-labelledby="menu-h">
+  <h2 id="menu-h">Choisis ton Crousty</h2>
+  <div class="products">
+    @for (p of products; track p.id) {
+      <article class="product">
+        <img [src]="p.image" [alt]="p.name" width="320" height="220" loading="lazy" />
+        <div class="product__body">
+          <h3>{{ p.name }}
+            @if (p.spicy) { <span class="tag tag--spicy" title="Piquant">🌶️</span> }
+            @if (p.sweet) { <span class="tag" title="Sucré">🍯</span> }
+          </h3>
+          <p>{{ p.description }}</p>
+          <button type="button" class="btn btn--block" (click)="openAdd(p)" [disabled]="!canOrder()"
+                  [attr.aria-label]="'Ajouter un ' + p.name">
+            <app-icon name="plus" /> Ajouter
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+  @if (!canOrder() && store.isOpen()) {
+    <p class="muted hint">Rejoins la session pour ajouter des commandes.</p>
+  }
+</section>
+
+<section class="stats" aria-label="Récapitulatif">
+  <div class="stat stat--main"><strong>{{ stats().total }}</strong><span>Crousty au total</span></div>
+  <div class="stat"><strong>{{ store.state()?.participants?.length ?? 0 }}</strong><span>Participants</span></div>
+  <div class="stat"><strong>{{ stats().eaters }}</strong><span>Personnes servies</span></div>
+  <div class="stat"><strong>{{ store.session()?.status === 'OPEN' ? 'OPEN' : 'CLOSED' }}</strong><span>Statut</span></div>
+</section>
+
+<section class="card types" aria-labelledby="types-h">
+  <h2 id="types-h" class="visually-hidden">Commandes par type</h2>
+  @for (t of stats().byType; track t.id) {
+    <div class="type" [class.type--zero]="t.count === 0">
+      <span>{{ t.name }}</span><strong>× {{ t.count }}</strong>
+    </div>
+  }
+</section>
+
+<section class="card" aria-labelledby="list-h">
+  <div class="list-head">
+    <h2 id="list-h">Liste des commandes</h2>
+    <span class="badge badge--muted">{{ store.state()?.orders?.length ?? 0 }} ligne(s)</span>
+  </div>
+
+  @if (stats().groups.length === 0) {
+    <p class="empty">Aucune commande pour l’instant. Sois le premier à ajouter un Crousty ! 🍗</p>
+  } @else {
+    <div class="table-wrap">
+      <table class="orders">
+        <thead>
+          <tr><th scope="col">Participant</th><th scope="col">Commande</th><th scope="col" class="num">Qté</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+        </thead>
+        @for (g of stats().groups; track g.name) {
+          <tbody>
+            @for (o of g.orders; track o.id; let first = $first) {
+              <tr [class.first]="first">
+                <th scope="row">@if (first) { {{ g.name }} }</th>
+                <td>
+                  {{ productName(o.productType) }}
+                  @if (o.notes) { <small class="note">« {{ o.notes }} »</small> }
+                  @if (ownerName(o) && ownerName(o) !== o.targetName) { <small class="by">ajouté par {{ ownerName(o) }}</small> }
+                </td>
+                <td class="num"><strong>{{ o.quantity }}</strong></td>
+                <td class="actions">
+                  @if (store.canEditOrder(o)) {
+                    <button type="button" class="icon-btn" (click)="openEdit(o)" [attr.aria-label]="'Modifier ' + productName(o.productType) + ' de ' + o.targetName">
+                      <app-icon name="edit" [size]="18" />
+                    </button>
+                    <button type="button" class="icon-btn icon-btn--danger" (click)="toDelete.set(o)" [attr.aria-label]="'Supprimer ' + productName(o.productType) + ' de ' + o.targetName">
+                      <app-icon name="trash" [size]="18" />
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+            @if (g.orders.length > 1) {
+              <tr class="subtotal"><td></td><td>Total {{ g.name }}</td><td class="num">{{ g.total }}</td><td></td></tr>
+            }
+          </tbody>
+        }
+        <tfoot>
+          <tr><th scope="row" colspan="2">Total</th><td class="num"><strong>{{ stats().total }}</strong></td><td></td></tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+</section>
+
+<!-- Fenêtre d'ajout / modification -->
+<app-modal [title]="editing() ? 'Modifier la commande' : 'Ajouter un ' + currentProduct().name" [open]="dialogOpen()" (closed)="dialogOpen.set(false)">
+  <form (submit)="$event.preventDefault(); submit()" novalidate>
+    @if (editing()) {
+      <div class="field">
+        <label for="prod">Produit</label>
+        <select id="prod" class="select" (change)="product.set($any($event.target).value)">
+          @for (p of products; track p.id) { <option [value]="p.id" [selected]="p.id === product()">{{ p.name }}</option> }
+        </select>
+      </div>
+    }
+
+    <fieldset class="field target">
+      <legend class="label">Pour qui est cette commande ?</legend>
+      @if (store.me(); as me) {
+        <label class="opt" [class.opt--on]="targetMode() === 'me'">
+          <input type="radio" name="target" value="me" [checked]="targetMode() === 'me'" (change)="targetMode.set('me')" />
+          Mon nom <strong>({{ me.name }})</strong>
+        </label>
+      }
+      @if (otherNames().length) {
+        <label class="opt" [class.opt--on]="targetMode() === 'other'">
+          <input type="radio" name="target" value="other" [checked]="targetMode() === 'other'" (change)="targetMode.set('other')" />
+          Un autre participant
+        </label>
+        @if (targetMode() === 'other') {
+          <label for="other" class="visually-hidden">Choisir le participant</label>
+          <select id="other" class="select" (change)="otherName.set($any($event.target).value)">
+            @for (n of otherNames(); track n) { <option [value]="n" [selected]="n === otherName()">{{ n }}</option> }
+          </select>
+        }
+      }
+      <label class="opt" [class.opt--on]="targetMode() === 'new'">
+        <input type="radio" name="target" value="new" [checked]="targetMode() === 'new'" (change)="targetMode.set('new')" />
+        Ajouter un nouveau nom
+      </label>
+      @if (targetMode() === 'new') {
+        <label for="newname" class="visually-hidden">Nouveau nom</label>
+        <input id="newname" class="input" maxlength="30" placeholder="Prénom de la personne" [value]="newName()"
+               (input)="newName.set($any($event.target).value)" />
+      }
+    </fieldset>
+
+    <div class="field">
+      <span class="label" id="qty-l">Quantité</span>
+      <div class="stepper" role="group" aria-labelledby="qty-l">
+        <button type="button" class="icon-btn" (click)="step(-1)" [disabled]="quantity() <= 1" aria-label="Diminuer"><app-icon name="minus" /></button>
+        <output aria-live="polite">{{ quantity() }}</output>
+        <button type="button" class="icon-btn" (click)="step(1)" [disabled]="quantity() >= 20" aria-label="Augmenter"><app-icon name="plus" /></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="notes">Précision <span class="muted">(facultatif)</span></label>
+      <input id="notes" class="input" maxlength="200" placeholder="Ex : sauce à part" [value]="notes()" (input)="notes.set($any($event.target).value)" />
+    </div>
+
+    @if (formError()) { <p class="error-text" role="alert">{{ formError() }}</p> }
+
+    <button type="submit" class="btn btn--lg btn--block" [disabled]="store.busy()">
+      <app-icon name="check" /> {{ editing() ? 'Enregistrer' : 'Valider la commande' }}
+    </button>
+  </form>
+</app-modal>
+
+<app-modal title="Supprimer la commande ?" [open]="!!toDelete()" (closed)="toDelete.set(null)">
+  @if (toDelete(); as o) {
+    <p>Supprimer <strong>{{ o.quantity }} × {{ productName(o.productType) }}</strong> pour <strong>{{ o.targetName }}</strong> ?</p>
+  }
+  <div class="row end">
+    <button type="button" class="btn btn--ghost" (click)="toDelete.set(null)">Annuler</button>
+    <button type="button" class="btn btn--red" (click)="confirmDelete()" [disabled]="store.busy()"><app-icon name="trash" /> Supprimer</button>
+  </div>
+</app-modal>
