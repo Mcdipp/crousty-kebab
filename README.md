@@ -1,15 +1,8 @@
-# 🍗 Crousty & Kebab — Commandes entre amis
+# Crousty & Kebab — Commandes pour dejeuner au wokami de place ravezi bordeaux
 
 Application web (PWA) pour organiser **des commandes groupées de Crousty** et **des sorties Tacos / Kebab** entre amis — **sans compte, sans mot de passe**, avec une synchronisation **en temps réel**.
 
 > Tu entres ton prénom, tu crées une session, tu partages le code à 4 chiffres (`0554`), tout le monde ajoute sa commande et la liste se met à jour en direct sur tous les téléphones. Quand quelqu'un a appelé le restaurant, le créateur clôture la commande.
-
-| Accueil | Session Crousty | Commande clôturée | Sortie Tacos / Kebab |
-|---|---|---|---|
-| ![Accueil](docs/screenshots/01-home.png) | ![Session](docs/screenshots/04-session-mobile.png) | ![Clôturée](docs/screenshots/06-closed-mobile.png) | ![Tacos](docs/screenshots/07-tacos-mobile.png) |
-
-*(Captures générées automatiquement pendant les tests end-to-end — à remplacer par de vraies captures si tu le souhaites.)*
-
 ---
 
 ## Sommaire
@@ -29,7 +22,7 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 
 ---
 
-## ✨ Fonctionnalités
+## Features
 
 **Accès sans compte**
 - Saisie du prénom / pseudo, mémorisé dans le navigateur.
@@ -58,7 +51,7 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 
 ---
 
-## 🧱 Stack technique
+## Stack technique
 
 | Couche | Technologies |
 |---|---|
@@ -70,7 +63,7 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
 crousty-kebab/
@@ -112,7 +105,7 @@ crousty-kebab/
 
 ---
 
-## 🐳 Démarrage rapide avec Docker
+## Démarrage rapide avec Docker
 
 Prérequis : Docker 24+ avec le plugin Compose.
 
@@ -150,7 +143,7 @@ Services : `database` (PostgreSQL, volume persistant `pgdata`, non exposé), `ba
 
 ---
 
-## 💻 Développement local
+## Développement local
 
 Prérequis : Node.js **22.12+**, npm 10+, PostgreSQL 15+ (local ou `docker run`).
 
@@ -185,7 +178,7 @@ npm start                         # http://localhost:4200 (proxy /api et /socket
 
 ---
 
-## 🧪 Tests
+## Tests
 
 **Backend** — tests d'intégration sur une vraie base PostgreSQL dédiée (le nom doit contenir `test`) :
 
@@ -210,7 +203,7 @@ Le workflow **GitHub Actions** (`.github/workflows/ci.yml`) exécute les deux su
 
 ---
 
-## 📡 API REST
+## API REST
 
 Toutes les routes sont préfixées par `/api`. Les jetons sont transmis **uniquement par en-têtes** : `X-Participant-Token` et `X-Creator-Token`.
 
@@ -244,7 +237,7 @@ Chaque événement transporte `{ state, actor, data }` où `state` est l'état p
 
 ---
 
-## 🔐 Sécurité et permissions
+## Sécurité et permissions
 
 - **Pas de compte** : à la création, le serveur génère un **jeton de gestion secret** (256 bits) donné uniquement au créateur ; chaque participant reçoit son propre jeton. Seules les **empreintes SHA-256** sont stockées, comparées en temps constant, et **jamais renvoyées** par l'API.
 - Les jetons sont conservés dans le `localStorage` du navigateur ; on retrouve donc son identité après un rechargement, mais pas sur un autre appareil.
@@ -255,7 +248,7 @@ Chaque événement transporte `{ state, actor, data }` où `state` est l'état p
 
 ---
 
-## 📱 Progressive Web App
+## Progressive Web App
 
 - Manifest (nom, icônes standard + *maskable*, `display: standalone`, couleurs, raccourcis), `apple-touch-icon` et balises iOS.
 - Service worker Angular : l'interface (JS, CSS, polices, images) est mise en cache pour un démarrage instantané ; **aucune réponse d'API n'est mise en cache** (les commandes nécessitent Internet).
@@ -264,32 +257,13 @@ Chaque événement transporte `{ state, actor, data }` où `state` est l'état p
 
 ---
 
-## 🚀 Déploiement en production (HTTPS)
-
-Le conteneur Nginx écoute en HTTP. Place devant lui un proxy TLS, par exemple **Caddy** (certificats Let's Encrypt automatiques) :
-
-```
-# Caddyfile
-crousty.mondomaine.fr {
-    reverse_proxy localhost:8080
-}
-```
-
-Dans ce cas, mets `TRUST_PROXY=2` dans `.env` (Caddy + Nginx) pour que le rate limiting voie la vraie IP. Traefik, Cloudflare Tunnel ou un Nginx hôte avec Certbot fonctionnent aussi (penser à transmettre les en-têtes `Upgrade`/`Connection` pour les WebSockets).
-
----
-
-## ⚠️ Limites connues
+## Limites connues
 
 - L'identité est liée au navigateur : vider ses données ou changer de téléphone fait perdre ses droits (le créateur perd alors la possibilité de clôturer). Il suffit de rejoindre avec un autre pseudo pour continuer à participer.
 - Une seule instance du backend est prévue (Socket.IO sans adaptateur Redis) — largement suffisant pour un usage entre amis.
 - Les illustrations sont des SVG originaux ; tu peux les remplacer par de vraies photos dans `frontend/public/images/` (mêmes noms de fichiers).
 
 ---
-
-## 🤝 Contribuer
-
-Voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 📄 Licence
 
