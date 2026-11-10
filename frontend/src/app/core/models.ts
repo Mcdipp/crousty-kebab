@@ -74,3 +74,19 @@ export interface RealtimePayload {
 export interface ApiErrorBody {
   error: { code: string; message: string };
 }
+
+export interface SessionSummary {
+  id: string;
+  code: string;
+  type: SessionType;
+  foodChoice: FoodChoice | null;
+  scheduledAt: string;
+  description: string | null;
+  status: SessionStatus;
+  creatorName: string;
+  createdAt: string;
+  closedAt: string | null;
+  participantCount: number;
+  itemCount: number;
+  revision: number;
+}

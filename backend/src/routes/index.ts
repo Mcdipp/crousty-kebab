@@ -25,6 +25,8 @@ router.get('/health', async (_req, res) => {
 router.get('/config', sessionCtrl.getConfig);
 
 // Sessions
+router.get('/sessions', sessionCtrl.list);
+router.post('/sessions', createLimiter, validate({ body: createSessionSchema }), sessionCtrl.create);
 router.post('/sessions', createLimiter, validate({ body: createSessionSchema }), sessionCtrl.create);
 router.post('/sessions/join', validate({ body: joinSessionSchema }), sessionCtrl.join);
 router.get('/sessions/:code', validate({ params: codeParams }), sessionCtrl.getByCode);

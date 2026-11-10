@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { io, type Socket } from 'socket.io-client';
-import type { RealtimePayload, SessionState } from './models';
+import type { RealtimePayload, SessionState, SessionSummary } from './models';
 
 export type RealtimeEvent =
   | 'session:updated'
@@ -27,6 +27,13 @@ const EVENTS: RealtimeEvent[] = [
 
 export type ConnectionStatus = 'connecting' | 'online' | 'offline';
 
+export interface LobbyHandlers {
+  /** Liste complète (à la connexion / reconnexion). */
+  onList: (sessions: SessionSummary[]) => void;
+  /** Une session créée ou modifiée. */
+  onSession: (session: SessionSummary) => void;
+}
+
 export interface RealtimeHandlers {
   /** État complet reçu (événement ou resynchronisation après reconnexion). */
   onState: (state: SessionState, event: RealtimeEvent | 'resync', payload?: RealtimePayload) => void;
@@ -42,6 +49,31 @@ export class RealtimeService {
   private socket: Socket | null = null;
   private sessionId: string | null = null;
   private handlers: RealtimeHandlers | null = null;
+  private lobby: LobbyHandlers | null = null;
+
+  watchLobby(handlers: LobbyHandlers): () => void {
+    this.lobby = handlers;
+    const socket = this.ensureSocket();
+    if (socket.connected) this.joinLobby();
+    return () => {
+      if (this.lobby !== handlers) return;
+      this.lobby = null;
+      this.socket?.emit('lobby:leave');
+    };
+  }
+
+  private joinLobby(): void {
+    if (!this.lobby || !this.socket) return;
+    this.socket
+      .timeout(8000)
+      .emitWithAck('lobby:join', {})
+      .then((res: { ok: boolean; sessions?: SessionSummary[] }) => {
+        if (res.ok && res.sessions) this.lobby?.onList(res.sessions);
+      })
+      .catch(() => {
+        /* nouvelle tentative à la prochaine reconnexion */
+      });
+  }
 
   watch(sessionId: string, handlers: RealtimeHandlers): () => void {
     this.sessionId = sessionId;
@@ -70,6 +102,7 @@ export class RealtimeService {
     socket.on('connect', () => {
       this.status.set('online');
       this.joinRoom();
+      this.joinLobby();
     });
     socket.on('disconnect', () => this.status.set('offline'));
     socket.on('connect_error', () => this.status.set('offline'));
@@ -81,10 +114,15 @@ export class RealtimeService {
         this.handlers?.onState(payload.state, event, payload);
       });
     }
+    socket.on('lobby:session', (summary: SessionSummary) => {
+      if (summary?.id) this.lobby?.onSession(summary);
+    });
     // Retour au premier plan sur mobile : on resynchronise.
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && socket.connected) this.joinRoom();
+        if (document.visibilityState === 'visible' && socket.connected)
+          this.joinRoom();
+          this.joinLobby()
       });
     }
     this.socket = socket;

@@ -11,7 +11,7 @@ import { ToastsComponent } from './shared/toasts.component';
     <header class="topbar">
       <div class="container topbar__inner">
         <a routerLink="/" class="brand" aria-label="Crousty & Kebab — accueil">
-          <img src="icons/logo.svg" alt="" width="36" height="36" />
+          <img src="icons/logo.png" alt="" width="55" height="55" />
           <span>Crousty <em>&amp;</em> Kebab</span>
         </a>
       </div>
@@ -19,7 +19,7 @@ import { ToastsComponent } from './shared/toasts.component';
     <main id="main">
       <router-outlet />
     </main>
-    <footer class="footer container">Fait avec 🧡 pour les soirées entre potes</footer>
+    <footer class="footer container">Fait avec bib, tres et un amour pour wokami</footer>
     <app-toasts />
   `,
   styles: `

@@ -3,9 +3,14 @@ import { config } from '../config.js';
 import { params, tokensOf } from '../middleware/index.js';
 import type { CreateSessionInput } from '../schemas/index.js';
 import * as sessions from '../services/session.service.js';
+import { listLobbySessions } from '../services/lobby.service.js';
 
 export async function getConfig(_req: Request, res: Response) {
   res.json({ croustyPhone: config.CROUSTY_PHONE });
+}
+
+export async function list(_req: Request, res: Response) {
+  res.set('Cache-Control', 'no-store').json({ sessions: await listLobbySessions() });
 }
 
 export async function create(req: Request, res: Response) {

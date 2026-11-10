@@ -16,7 +16,7 @@ import { IconComponent } from '../../shared/icon.component';
     <div class="container narrow">
       <a routerLink="/" class="back"><app-icon name="arrowLeft" [size]="18" /> Accueil</a>
       <header class="head" [class.head--tacos]="isTacos()">
-        <img [src]="isTacos() ? 'images/tacos-kebab-hero.svg' : 'images/crousty-hero.svg'" alt="" width="120" height="78" />
+        <img [src]="isTacos() ? 'images/tacos-kebab-hero.png' : 'images/crousty-hero.png'" alt="" width="120" height="78" />
         <div>
           <p class="kicker">Nouvelle session</p>
           <h1>{{ isTacos() ? 'Sortie Tacos / Kebab' : 'Session Crousty' }}</h1>
