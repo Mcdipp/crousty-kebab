@@ -265,6 +265,6 @@ Chaque événement transporte `{ state, actor, data }` où `state` est l'état p
 
 ---
 
-## 📄 Licence
+## Licence
 
 [MIT](LICENSE)
