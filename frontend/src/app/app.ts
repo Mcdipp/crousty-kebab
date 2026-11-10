@@ -11,7 +11,7 @@ import { ToastsComponent } from './shared/toasts.component';
     <header class="topbar">
       <div class="container topbar__inner">
         <a routerLink="/" class="brand" aria-label="Crousty & Kebab — accueil">
-          <img src="icons/logo.png" alt="" width="55" height="55" />
+          <img src="icons/vrai-logo.png" alt="" width="65" height="65" />
           <span>Crousty <em>&amp;</em> Kebab</span>
         </a>
       </div>
