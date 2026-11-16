@@ -21,7 +21,7 @@ export interface DiscordMessage {
 }
 
 /**
- * Interprète DISCORD_MENTION :
+ * Interprète DISCORD_MENTION_CROUSTY / DISCORD_MENTION_TACOS :
  * `@everyone` / `@here`, un rôle (`<@&123…>` ou simplement son identifiant numérique), ou vide (aucune mention).
  * `allowed_mentions` est toujours explicite : rien d'autre (ex. un « @everyone » dans la description) ne peut notifier.
  */
@@ -75,8 +75,10 @@ export function buildSessionOpenedMessage(
   };
 }
 
-function webhookFor(type: PublicSessionState['session']['type']): string {
-  return type === 'CROUSTY' ? config.DISCORD_WEBHOOK_CROUSTY : config.DISCORD_WEBHOOK_TACOS;
+function discordTarget(type: PublicSessionState['session']['type']): { url: string; mention: string } {
+  return type === 'CROUSTY'
+    ? { url: config.DISCORD_WEBHOOK_CROUSTY, mention: config.DISCORD_MENTION_CROUSTY }
+    : { url: config.DISCORD_WEBHOOK_TACOS, mention: config.DISCORD_MENTION_TACOS };
 }
 
 /**
@@ -84,9 +86,9 @@ function webhookFor(type: PublicSessionState['session']['type']): string {
  * N'échoue jamais : une erreur Discord ne doit pas empêcher la création de la session.
  */
 export async function notifySessionOpened(state: PublicSessionState): Promise<void> {
-  const url = webhookFor(state.session.type);
+  const { url, mention } = discordTarget(state.session.type);
   if (!url) return;
-  const body = buildSessionOpenedMessage(state, { mention: config.DISCORD_MENTION, publicUrl: config.PUBLIC_URL });
+  const body = buildSessionOpenedMessage(state, { mention, publicUrl: config.PUBLIC_URL });
   try {
     const res = await fetch(url, {
       method: 'POST',

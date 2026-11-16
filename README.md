@@ -49,7 +49,7 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 - Statut `OPEN` / `CLOSED`, heure de clôture enregistrée, message « Commande clôturée ! Le restaurant a été contacté. Merci à tous ! » affiché instantanément chez tous.
 - Plus aucun ajout / modification / suppression (vérifié côté serveur). Le créateur peut **rouvrir**.
 
-**Notifications Discord** : à l'ouverture d'une session, un message est posté dans le salon Crousty ou Tacos / Kebab, avec une mention (`@everyone`, `@here` ou un rôle) et le lien de la session.
+**Notifications Discord** : à l'ouverture d'une session, un message est posté dans le salon Crousty ou Tacos / Kebab, avec une mention réglable par salon (`@everyone`, `@here` ou un rôle) et le lien de la session.
 
 **Temps réel** : chaque action est visible sans recharger la page (Socket.IO), avec indicateur *En direct / Hors ligne* et resynchronisation automatique après reconnexion.
 
@@ -157,7 +157,8 @@ Services : `database` (PostgreSQL, volume persistant `pgdata`, non exposé), `ba
 ```bash
 DISCORD_WEBHOOK_CROUSTY=https://discord.com/api/webhooks/<id>/<token>
 DISCORD_WEBHOOK_TACOS=https://discord.com/api/webhooks/<id>/<token>
-DISCORD_MENTION=@everyone            # @here, l'identifiant d'un rôle, ou vide pour ne mentionner personne
+DISCORD_MENTION_CROUSTY=@everyone    # @here, l'identifiant d'un rôle, ou vide pour ne mentionner personne
+DISCORD_MENTION_TACOS=@here          # réglable indépendamment pour chaque salon
 PUBLIC_URL=https://crousty.example.fr   # pour mettre le lien de la session dans le message
 ```
 

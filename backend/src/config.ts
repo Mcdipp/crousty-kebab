@@ -28,8 +28,9 @@ const envSchema = z.object({
   /** Salons Discord prévenus à l'ouverture d'une session. */
   DISCORD_WEBHOOK_CROUSTY: discordWebhook,
   DISCORD_WEBHOOK_TACOS: discordWebhook,
-  /** Qui mentionner : @everyone, @here, un identifiant de rôle, ou vide pour ne mentionner personne. */
-  DISCORD_MENTION: z.string().trim().max(40).default('@everyone'),
+  /** Qui mentionner dans chaque salon : @everyone, @here, un identifiant de rôle, ou vide pour personne. */
+  DISCORD_MENTION_CROUSTY: z.string().trim().max(40).default('@everyone'),
+  DISCORD_MENTION_TACOS: z.string().trim().max(40).default('@everyone'),
   /** Adresse publique du site, pour mettre le lien de la session dans le message Discord. */
   PUBLIC_URL: z
     .string()

@@ -81,7 +81,8 @@ describe('Envoi du webhook à l’ouverture d’une session', () => {
     await resetDb();
     config.DISCORD_WEBHOOK_CROUSTY = CROUSTY_HOOK;
     config.DISCORD_WEBHOOK_TACOS = '';
-    config.DISCORD_MENTION = '@here';
+    config.DISCORD_MENTION_CROUSTY = '@here';
+    config.DISCORD_MENTION_TACOS = '123456789012345678';
     config.PUBLIC_URL = 'https://crousty.example.fr';
     fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }));
   });
@@ -111,6 +112,10 @@ describe('Envoi du webhook à l’ouverture d’une session', () => {
     await createTacos('KEBAB', 'Yanis');
     await vi.waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(2));
     expect(fetchSpy.mock.calls[1]![0]).toBe(TACOS_HOOK);
+    // Chaque salon a sa propre mention.
+    const tacosBody = JSON.parse((fetchSpy.mock.calls[1]![1] as RequestInit).body as string);
+    expect(tacosBody.content).toMatch(/^<@&123456789012345678> 🌯/);
+    expect(tacosBody.allowed_mentions).toEqual({ parse: [], roles: ['123456789012345678'] });
   });
 
   it('crée quand même la session si Discord est injoignable', async () => {

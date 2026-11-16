@@ -41,7 +41,8 @@ services:
       DISCORD_WEBHOOK_CROUSTY: ${DISCORD_WEBHOOK_CROUSTY:-}
       DISCORD_WEBHOOK_TACOS: ${DISCORD_WEBHOOK_TACOS:-}
       # « - » et non « :- » : une valeur vide dans .env désactive la mention.
-      DISCORD_MENTION: ${DISCORD_MENTION-@everyone}
+      DISCORD_MENTION_CROUSTY: ${DISCORD_MENTION_CROUSTY-@everyone}
+      DISCORD_MENTION_TACOS: ${DISCORD_MENTION_TACOS-@everyone}
       PUBLIC_URL: ${PUBLIC_URL:-}
       RUN_MIGRATIONS: "true"
     networks: [internal]
