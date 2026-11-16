@@ -6,21 +6,35 @@ import { ToastService } from '../core/toast.service';
 const COOLDOWN_MS = 600;
 const FLIP_COOLDOWN_MS = 150;
 
+const DIRS: KlaxonDir[] = ['haut', 'bas'];
+const urlOf = (dir: KlaxonDir) => `sounds/klaxon_${dir}.mp3`;
+
 /**
- * Easter egg de l'accueil : le levier fait klaxonner tout le monde.
- * Le son est joué localement tout de suite, puis relayé aux autres visiteurs de l'accueil.
+ * Easter egg de l'accueil : le levier fait klaxonner tout le monde, y compris les visiteurs
+ * qui n'ont pas débloqué le levier. Le son est joué localement tout de suite, puis relayé.
+ *
+ * Les navigateurs (iOS en tête) refusent de jouer un son reçu « de nulle part » : on débloque
+ * donc un AudioContext à la toute première interaction avec la page, quelle qu'elle soit.
  */
 @Injectable({ providedIn: 'root' })
 export class KlaxonService {
   private readonly realtime = inject(RealtimeService);
   private readonly toast = inject(ToastService);
-  private readonly sounds = new Map<KlaxonDir, HTMLAudioElement>();
+  private ctx: AudioContext | null = null;
+  private readonly buffers = new Map<KlaxonDir, AudioBuffer>();
+  private loading: Promise<void> | null = null;
   private lastHonk: { dir: KlaxonDir; at: number } | null = null;
+  private lastHint = 0;
   /** Incrémenté à chaque klaxon (local ou distant), pour animer le levier. */
   readonly honks = signal(0);
 
   constructor() {
     this.realtime.onKlaxon((dir) => this.play(dir, true));
+    if (typeof document === 'undefined') return;
+    // Écouteurs laissés en place : iOS peut re-suspendre le contexte (appel, verrouillage…).
+    for (const type of ['pointerdown', 'keydown', 'touchend']) {
+      document.addEventListener(type, () => this.unlock(), { capture: true, passive: true });
+    }
   }
 
   honk(dir: KlaxonDir): void {
@@ -32,23 +46,47 @@ export class KlaxonService {
     this.realtime.sendKlaxon(dir);
   }
 
-  private play(dir: KlaxonDir, remote: boolean): void {
-    this.honks.update((n) => n + 1);
-    const audio = this.sound(dir);
-    audio.currentTime = 0;
-    audio.play().catch(() => {
-      // Le navigateur bloque le son tant que la personne n'a pas interagi avec la page.
-      if (remote) this.toast.info('📯 Tuuut tuuut ! Quelqu’un a tiré le levier');
-    });
+  private unlock(): void {
+    const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctor) return;
+    try {
+      this.ctx ??= new Ctor();
+    } catch {
+      return;
+    }
+    if (this.ctx.state !== 'running') void this.ctx.resume().catch(() => undefined);
+    this.loading ??= this.load(this.ctx);
   }
 
-  private sound(dir: KlaxonDir): HTMLAudioElement {
-    let audio = this.sounds.get(dir);
-    if (!audio) {
-      audio = new Audio(`sounds/klaxon_${dir}.mp3`);
-      audio.preload = 'auto';
-      this.sounds.set(dir, audio);
+  private async load(ctx: AudioContext): Promise<void> {
+    await Promise.all(
+      DIRS.map(async (dir) => {
+        try {
+          const data = await (await fetch(urlOf(dir))).arrayBuffer();
+          this.buffers.set(dir, await ctx.decodeAudioData(data));
+        } catch {
+          /* repli sur <audio> au moment de jouer */
+        }
+      }),
+    );
+  }
+
+  private play(dir: KlaxonDir, remote: boolean): void {
+    this.honks.update((n) => n + 1);
+    const buffer = this.buffers.get(dir);
+    if (this.ctx?.state === 'running' && buffer) {
+      const source = this.ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.ctx.destination);
+      source.start();
+      return;
     }
-    return audio;
+    // Son pas encore prêt : on tente un <audio> classique.
+    new Audio(urlOf(dir)).play().catch(() => {
+      // La personne n'a pas encore touché la page : le navigateur bloque tout son.
+      if (!remote || Date.now() - this.lastHint < 5000) return;
+      this.lastHint = Date.now();
+      this.toast.info('📯 Quelqu’un a tiré le levier ! Touche la page pour entendre le klaxon');
+    });
   }
 }
