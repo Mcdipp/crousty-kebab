@@ -10,7 +10,7 @@ import { ToastsComponent } from './shared/toasts.component';
     <a class="skip" href="#main">Aller au contenu</a>
     <header class="topbar">
       <div class="container topbar__inner">
-        <a routerLink="/" class="brand" aria-label="Crousty & Kebab — accueil">
+        <a routerLink="/" class="brand" aria-label="Crousty & Kebab - accueil">
           <img src="icons/vrai-logo.png" alt="" width="55" height="55" />
           <span>Crousty <em>&amp;</em> Kebab</span>
         </a>

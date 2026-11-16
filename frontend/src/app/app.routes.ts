@@ -3,7 +3,7 @@ import type { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    title: 'Crousty & Kebab — Repas entre étudiants',
+    title: 'Crousty & Kebab - Repas entre étudiants',
     loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
   },
   {
@@ -20,7 +20,7 @@ export const routes: Routes = [
   },
   {
     path: 'session/:id',
-    title: 'Session — Crousty & Kebab',
+    title: 'Session - Crousty & Kebab',
     loadComponent: () => import('./features/session/session-page.component').then((m) => m.SessionPageComponent),
   },
   { path: '**', redirectTo: '' },

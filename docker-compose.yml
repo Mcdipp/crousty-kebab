@@ -1,4 +1,4 @@
-# Crousty & Kebab — démarrage complet :  docker compose up --build -d
+# Crousty & Kebab - démarrage complet :  docker compose up --build -d
 name: crousty-kebab
 
 services:

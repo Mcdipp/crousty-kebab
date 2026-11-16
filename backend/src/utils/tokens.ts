@@ -5,7 +5,7 @@ export function generateToken(): string {
   return randomBytes(32).toString('base64url');
 }
 
-/** Empreinte SHA-256 hexadécimale (64 caractères) — seule valeur stockée en base. */
+/** Empreinte SHA-256 hexadécimale (64 caractères) - seule valeur stockée en base. */
 export function hashToken(token: string): string {
   return createHash('sha256').update(token, 'utf8').digest('hex');
 }

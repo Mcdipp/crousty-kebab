@@ -49,7 +49,7 @@ export class SessionPageComponent {
   readonly s = this.store.session;
   readonly isTacos = this.store.isTacos;
   readonly outing = computed(() => OUTING_LABEL[this.s()?.foodChoice ?? 'BOTH']);
-  readonly heading = computed(() => (this.isTacos() ? `SORTIE ${this.outing().toUpperCase()}` : 'CROUSTY — SESSION'));
+  readonly heading = computed(() => (this.isTacos() ? `SORTIE ${this.outing().toUpperCase()}` : 'CROUSTY - SESSION'));
   readonly when = computed(() => (this.s() ? formatWhen(this.s()!.scheduledAt) : ''));
   readonly closedHour = computed(() => (this.s()?.closedAt ? formatHour(this.s()!.closedAt!) : ''));
   readonly phoneDisplay = computed(() => this.croustyPhone().replace(/(\d{2})(?=\d)/g, '$1 ').trim());
@@ -68,7 +68,7 @@ export class SessionPageComponent {
 
     effect(() => {
       const s = this.s();
-      if (s) this.title.setTitle(`${s.type === 'CROUSTY' ? 'Crousty' : 'Tacos / Kebab'} de ${s.creatorName} — Crousty & Kebab`);
+      if (s) this.title.setTitle(`${s.type === 'CROUSTY' ? 'Crousty' : 'Tacos / Kebab'} de ${s.creatorName} - Crousty & Kebab`);
     });
 
     // Rejoindre automatiquement si l'utilisateur vient de l'accueil avec son pseudo.

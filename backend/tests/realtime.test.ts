@@ -79,7 +79,7 @@ describe('Synchronisation Socket.IO', () => {
     expect(pa.actor).toBe('Lucas');
     expect(pb.state.participants).toHaveLength(2);
 
-    // order:created — l'état diffusé reflète la base
+    // order:created - l'état diffusé reflète la base
     const created1 = nextEvent(b, 'order:created');
     await http_
       .post(`/api/sessions/${sessionId}/orders`)
