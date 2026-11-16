@@ -22,9 +22,9 @@
 
       <h1 class="banner__title">{{ heading() }}</h1>
       <div class="banner__meta">
-        <span class="meta"><app-icon name="clock" [size]="18" /> Heure prévue : <strong>{{ hour() }}</strong></span>
+        <span class="meta"><app-icon name="clock" [size]="18" /> {{ isTacos() ? 'Rendez-vous' : 'Commande prévue' }} : <strong>{{ when() }}</strong></span>
         @if (session.status === 'OPEN') {
-          <span class="badge badge--open">● OPEN — Commandes ouvertes</span>
+          <span class="badge badge--open">● {{ isTacos() ? 'Inscriptions ouvertes' : 'OPEN — Commandes ouvertes' }}</span>
         } @else {
           <span class="badge badge--closed"><app-icon name="lock" [size]="14" /> CLOSED — Clôturée</span>
         }
@@ -33,8 +33,7 @@
         @if (session.description) { · {{ session.description }} }
       </p>
 
-      <app-share-link [sessionId]="session.id"
-        [title]="isTacos() ? 'On va au tacos / kebab, tu viens ?' : 'Commande Crousty groupée, tu prends quoi ?'" />
+      <app-share-link [sessionId]="session.id" [title]="shareTitle()" />
 
       @if (!isTacos()) {
         <a class="phone" [href]="'tel:' + croustyPhone()">
@@ -50,7 +49,11 @@
       <div class="closed" role="alert" [class.closed--fresh]="store.justClosed()">
         <span class="closed__emoji" aria-hidden="true">🎉</span>
         <div>
-          <strong>Commande clôturée ! Le restaurant a été contacté. Merci à tout le monde !</strong>
+          @if (isTacos()) {
+            <strong>Inscriptions clôturées. Rendez-vous {{ when() }} !</strong>
+          } @else {
+            <strong>Commande clôturée ! Le restaurant a été contacté. Merci à tout le monde !</strong>
+          }
           <p>Clôturée à {{ closedHour() }}. La liste finale reste visible ci-dessous.</p>
         </div>
       </div>
@@ -87,25 +90,37 @@
       <section class="admin card" aria-labelledby="admin-h">
         <h2 id="admin-h">Espace organisation</h2>
         @if (session.status === 'OPEN') {
-          <p class="muted">Quand tu as appelé le restaurant, clôture la commande : plus personne ne pourra la modifier.</p>
-          <button type="button" class="btn btn--lg btn--block btn--red" (click)="confirmClose.set(true)" [disabled]="store.busy()">
-            <app-icon name="phone" /> J’AI APPELÉ LE RESTAURANT — FERMER LA COMMANDE
-          </button>
+          @if (isTacos()) {
+            <p class="muted">Quand la liste est bouclée, clôture les inscriptions : plus personne ne pourra s’ajouter ou se retirer.</p>
+            <button type="button" class="btn btn--lg btn--block btn--red" (click)="confirmClose.set(true)" [disabled]="store.busy()">
+              <app-icon name="lock" /> Clôturer les inscriptions
+            </button>
+          } @else {
+            <p class="muted">Quand tu as appelé le restaurant, clôture la commande : plus personne ne pourra la modifier.</p>
+            <button type="button" class="btn btn--lg btn--block btn--red" (click)="confirmClose.set(true)" [disabled]="store.busy()">
+              <app-icon name="phone" /> J’AI APPELÉ LE RESTAURANT — FERMER LA COMMANDE
+            </button>
+          }
         } @else {
-          <p class="muted">Un oubli ? Tu peux rouvrir la commande pour permettre des modifications.</p>
+          <p class="muted">Un oubli ? Tu peux rouvrir {{ isTacos() ? 'les inscriptions' : 'la commande pour permettre des modifications' }}.</p>
           <button type="button" class="btn btn--block btn--dark" (click)="store.reopen()" [disabled]="store.busy()">
-            <app-icon name="unlock" /> Rouvrir la commande
+            <app-icon name="unlock" /> {{ isTacos() ? 'Rouvrir les inscriptions' : 'Rouvrir la commande' }}
           </button>
         }
       </section>
     } @else if (session.status === 'OPEN') {
-      <p class="muted center">Seule la personne qui organise ({{ session.creatorName }}) peut clôturer la commande.</p>
+      <p class="muted center">Seule la personne qui organise ({{ session.creatorName }}) peut clôturer {{ isTacos() ? 'les inscriptions' : 'la commande' }}.</p>
     }
   </div>
 
-  <app-modal title="Clôturer la commande ?" [open]="confirmClose()" (closed)="confirmClose.set(false)">
-    <p>Tu as bien appelé le restaurant et tu veux clôturer la commande&nbsp;?</p>
-    <p class="muted">Plus personne ne pourra ajouter, modifier ou supprimer de commande.</p>
+  <app-modal [title]="isTacos() ? 'Clôturer les inscriptions ?' : 'Clôturer la commande ?'" [open]="confirmClose()" (closed)="confirmClose.set(false)">
+    @if (isTacos()) {
+      <p>Tu veux clôturer les inscriptions pour cette sortie&nbsp;?</p>
+      <p class="muted">Plus personne ne pourra s’ajouter ou se retirer. Tu pourras les rouvrir si besoin.</p>
+    } @else {
+      <p>Tu as bien appelé le restaurant et tu veux clôturer la commande&nbsp;?</p>
+      <p class="muted">Plus personne ne pourra ajouter, modifier ou supprimer de commande.</p>
+    }
     <div class="modal-actions">
       <button type="button" class="btn btn--ghost" (click)="confirmClose.set(false)">Annuler</button>
       <button type="button" class="btn btn--red" (click)="doClose()" [disabled]="store.busy()">

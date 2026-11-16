@@ -142,9 +142,9 @@ describe('Synchronisation Socket.IO', () => {
     await http_
       .post(`/api/sessions/${t.state.session.id}/participations`)
       .set('X-Participant-Token', t.participantToken)
-      .send({ choice: 'KEBAB' })
+      .send({ notes: 'je ramène des boissons' })
       .expect(200);
-    expect((await up).data.choice).toBe('KEBAB');
+    expect((await up).data.notes).toBe('je ramène des boissons');
     const left = nextEvent(a, 'participant:left');
     await http_
       .delete(`/api/sessions/${t.state.session.id}/participations/${t.participantId}`)

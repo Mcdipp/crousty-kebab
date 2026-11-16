@@ -52,10 +52,10 @@
                  alt="" width="88" height="57" />
             <div class="sess__body">
               <div class="sess__title">
-                <strong>{{ s.type === 'CROUSTY' ? 'Crousty' : 'Tacos / Kebab' }}</strong>
+                <strong>{{ s.type === 'CROUSTY' ? 'Crousty' : 'Sortie ' + outingLabel[s.foodChoice ?? 'BOTH'] }}</strong>
               </div>
               <div class="sess__meta">
-                <span><app-icon name="clock" [size]="14" /> {{ formatHour(s.scheduledAt) }}</span>
+                <span><app-icon name="clock" [size]="14" /> {{ formatWhen(s.scheduledAt) }}</span>
                 <span>par <strong>{{ s.creatorName }}</strong>@if (isMine(s)) { <em> (toi)</em> }</span>
               </div>
               <div class="sess__meta">
@@ -63,7 +63,7 @@
                 @if (s.type === 'CROUSTY') {
                   <span>🍗 {{ s.itemCount }} Crousty</span>
                 } @else {
-                  <span>🌯 {{ s.itemCount }} inscrit{{ s.itemCount > 1 ? 's' : '' }}</span>
+                  <span>🙌 {{ s.itemCount }} {{ s.itemCount > 1 ? 'personnes partantes' : 'personne partante' }}</span>
                 }
                 @if (s.status === 'OPEN') {
                   <span class="badge badge--open">Ouverte</span>
@@ -105,7 +105,7 @@
       <img class="cat__img" src="images/tacos-kebab-hero.png" alt="Un tacos et un kebab" width="400" height="260" />
       <div class="cat__body">
         <h2>Tacos / Kebab</h2>
-        <p>On sort chercher des tacos ou un kebab ? Vois en un coup d’œil qui vient et ce qu’il prend.</p>
+        <p>« Demain midi on va au tacos ? » Propose une sortie et vois en un coup d’œil qui vient.</p>
         <button type="button" class="btn btn--lg btn--block btn--red" (click)="create('tacos-kebab')">
           <app-icon name="users" /> Organiser une sortie Tacos / Kebab
         </button>

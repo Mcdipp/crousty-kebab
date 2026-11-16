@@ -13,7 +13,8 @@ import { Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { IdentityService } from '../../core/identity.service';
-import { formatHour } from '../../core/time';
+import { OUTING_LABEL } from '../../core/products';
+import { formatHour, formatWhen } from '../../core/time';
 import { IconComponent } from '../../shared/icon.component';
 import { ModalComponent } from '../../shared/modal.component';
 import { ShareLinkComponent } from '../../shared/share-link.component';
@@ -46,9 +47,15 @@ export class SessionPageComponent {
   readonly croustyPhone = signal('0554796424');
 
   readonly s = this.store.session;
-  readonly isTacos = computed(() => this.s()?.type === 'TACOS_KEBAB');
-  readonly heading = computed(() => (this.isTacos() ? 'SORTIE TACOS / KEBAB' : 'CROUSTY — SESSION'));
-  readonly hour = computed(() => (this.s() ? formatHour(this.s()!.scheduledAt) : ''));
+  readonly isTacos = this.store.isTacos;
+  readonly outing = computed(() => OUTING_LABEL[this.s()?.foodChoice ?? 'BOTH']);
+  readonly heading = computed(() => (this.isTacos() ? `SORTIE ${this.outing().toUpperCase()}` : 'CROUSTY — SESSION'));
+  readonly when = computed(() => (this.s() ? formatWhen(this.s()!.scheduledAt) : ''));
+  readonly shareTitle = computed(() =>
+    this.isTacos()
+      ? `On va au ${this.outing().toLowerCase()} ${this.when()}, tu viens ?`
+      : `Commande Crousty groupée ${this.when()}, tu prends quoi ?`,
+  );
   readonly closedHour = computed(() => (this.s()?.closedAt ? formatHour(this.s()!.closedAt!) : ''));
   readonly phoneDisplay = computed(() => this.croustyPhone().replace(/(\d{2})(?=\d)/g, '$1 ').trim());
   readonly needsJoin = computed(() => !this.store.loading() && !!this.s() && !this.store.identity());

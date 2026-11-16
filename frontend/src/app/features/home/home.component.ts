@@ -4,7 +4,8 @@ import { ApiService } from '../../core/api.service';
 import { IdentityService } from '../../core/identity.service';
 import type { SessionSummary } from '../../core/models';
 import { RealtimeService } from '../../core/realtime.service';
-import { formatHour } from '../../core/time';
+import { OUTING_LABEL } from '../../core/products';
+import { formatHour, formatWhen } from '../../core/time';
 import { IconComponent } from '../../shared/icon.component';
 import { sortSessions, upsertSession } from './lobby';
 
@@ -31,6 +32,8 @@ export class HomeComponent {
   readonly sessionsError = signal<string | null>(null);
   readonly connection = this.realtime.status;
   protected readonly formatHour = formatHour;
+  protected readonly formatWhen = formatWhen;
+  protected readonly outingLabel = OUTING_LABEL;
 
   constructor() {
     // 1) Chargement HTTP immédiat (fonctionne même si le WebSocket tarde)

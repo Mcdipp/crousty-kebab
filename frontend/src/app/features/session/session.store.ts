@@ -1,8 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { ApiService, toApiError } from '../../core/api.service';
 import { IdentityService, type SessionIdentity } from '../../core/identity.service';
-import type { CroustyProduct, Order, ParticipationChoice, RealtimePayload, SessionState } from '../../core/models';
-import { CROUSTY_PRODUCTS, CHOICE_LABEL, productName } from '../../core/products';
+import type { CroustyProduct, Order, Participation, RealtimePayload, SessionState } from '../../core/models';
+import { CROUSTY_PRODUCTS, productName } from '../../core/products';
 import { RealtimeService, type RealtimeEvent } from '../../core/realtime.service';
 import { ToastService } from '../../core/toast.service';
 
@@ -46,8 +46,6 @@ export function computeTacosStats(state: SessionState | null) {
   return {
     going,
     total: going.length,
-    tacos: going.filter((g) => g.choice === 'TACOS').length,
-    kebab: going.filter((g) => g.choice === 'KEBAB').length,
     pending: (state?.participants ?? []).filter((p) => !answered.has(p.id)),
   };
 }
@@ -71,6 +69,7 @@ export class SessionStore {
   readonly session = computed(() => this.state()?.session ?? null);
   readonly isOpen = computed(() => this.session()?.status === 'OPEN');
   readonly isCreator = computed(() => !!this.identity()?.creatorToken);
+  readonly isTacos = computed(() => this.session()?.type === 'TACOS_KEBAB');
   readonly me = computed(() => {
     const id = this.identity();
     return id ? (this.state()?.participants.find((p) => p.id === id.participantId) ?? null) : null;
@@ -115,6 +114,7 @@ export class SessionStore {
   }
 
   private onRealtime(state: SessionState, event: RealtimeEvent | 'resync', payload?: RealtimePayload): void {
+    const previous = this.state();
     const accepted = this.applyState(state, event === 'resync');
     if (!accepted || event === 'resync') return;
     const actor = payload?.actor;
@@ -126,7 +126,13 @@ export class SessionStore {
         break;
       case 'session:reopened':
         this.justClosed.set(false);
-        if (!this.isCreator()) this.toast.info('La commande a été rouverte : tu peux à nouveau modifier.');
+        if (!this.isCreator()) {
+          this.toast.info(
+            this.isTacos()
+              ? 'Les inscriptions ont été rouvertes.'
+              : 'La commande a été rouverte : tu peux à nouveau la modifier.',
+          );
+        }
         break;
       case 'participant:joined':
         if (!mine && actor) this.toast.info(`${actor} a rejoint la session 👋`);
@@ -137,8 +143,9 @@ export class SessionStore {
         break;
       }
       case 'participation:updated': {
-        const p = payload?.data as { choice: ParticipationChoice } | undefined;
-        if (!mine && actor && p) this.toast.info(`${actor} part sur un ${CHOICE_LABEL[p.choice]} 🌯`);
+        const p = payload?.data as Participation | undefined;
+        const wasGoing = !!p && !!previous?.participations.some((x) => x.participantId === p.participantId);
+        if (!mine && actor && p && !wasGoing) this.toast.info(`${actor} vient ! 🙌`);
         break;
       }
       case 'participant:left': {
@@ -210,12 +217,12 @@ export class SessionStore {
 
   // ---------- Tacos / Kebab ----------
 
-  participate(choice: ParticipationChoice, notes: string | null) {
+  participate(notes: string | null) {
     return this.run(async () => {
       const had = !!this.myParticipation();
-      const res = await this.api.upsertParticipation(this.session()!.id, { choice, notes });
+      const res = await this.api.upsertParticipation(this.session()!.id, { notes });
       this.applyState(res.state);
-      this.toast.success(had ? 'Choix mis à jour ✅' : `C'est noté : ${CHOICE_LABEL[choice]} ! 🎉`);
+      this.toast.success(had ? 'Petit mot mis à jour ✅' : 'C’est noté, à bientôt ! 🎉');
     });
   }
 
@@ -223,7 +230,7 @@ export class SessionStore {
     return this.run(async () => {
       const res = await this.api.removeParticipation(this.session()!.id, participantId);
       this.applyState(res.state);
-      this.toast.success(participantId === this.me()?.id ? 'Tu t’es retiré de la sortie' : 'Participant retiré');
+      this.toast.success(participantId === this.me()?.id ? 'C’est noté, tu ne viens plus' : 'Personne retirée de la sortie');
     });
   }
 

@@ -37,10 +37,11 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 - Chacun modifie / supprime **ses** commandes ; le créateur gère **toutes** les commandes.
 - Numéro du restaurant à appeler affiché en grand (lien `tel:`), configurable via `CROUSTY_PHONE`.
 
-**Tacos / Kebab**
-- Session avec choix du menu : Tacos, Kebab ou les deux.
-- « Qui va au tacos / kebab ? » : s'inscrire, modifier son choix, ajouter une précision, se retirer.
-- Compteurs (total, tacos, kebab) et liste des participants qui n'ont pas encore répondu.
+**Tacos / Kebab** — un simple « demain on y va ? », pas une commande
+- Sortie avec un jour (aujourd'hui, demain ou un autre jour de la semaine), une heure de rendez-vous et une destination : Tacos, Kebab ou à décider.
+- « Qui vient ? » : dire « J'y vais ! » avec un petit mot facultatif (« j'arrive vers 12h15 »), ou se retirer.
+- Nombre de personnes qui viennent et liste de celles qui n'ont pas encore répondu.
+- La personne qui organise peut clôturer puis rouvrir les inscriptions.
 
 **Clôture de commande**
 - Bouton **« J'AI APPELÉ LE RESTAURANT — FERMER LA COMMANDE »** (réservé au créateur) avec confirmation.
@@ -221,7 +222,7 @@ Toutes les routes sont préfixées par `/api`. Les jetons sont transmis **unique
 | POST | `/sessions/:id/orders` | Ajouter `{ targetName, productType, quantity, notes? }` | Participant |
 | PATCH | `/orders/:id` | Modifier | Propriétaire ou créateur |
 | DELETE | `/orders/:id` | Supprimer | Propriétaire ou créateur |
-| POST | `/sessions/:id/participations` | S'inscrire / changer son choix `{ choice, notes? }` | Participant |
+| POST | `/sessions/:id/participations` | « J'y vais » / modifier son petit mot `{ notes? }` | Participant |
 | DELETE | `/sessions/:id/participations/:participantId` | Se retirer / retirer quelqu'un | Soi-même ou créateur |
 
 Erreurs : `{ "error": { "code": "SESSION_CLOSED", "message": "…" } }` avec les statuts 400 / 401 / 403 / 404 / 409 / 429 / 500.
