@@ -1,4 +1,4 @@
-# Crousty & Kebab — Commandes pour dejeuner au wokami de place ravezi bordeaux
+# Crousty & Kebab — Commandes pour dejeuner au wokami de place Ravezies à Bordeaux
 
 Application web (PWA) pour organiser **des commandes groupées de Crousty** et **des sorties Tacos / Kebab** entre amis — **sans compte, sans mot de passe**, avec une synchronisation **en temps réel**.
 
