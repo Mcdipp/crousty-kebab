@@ -153,6 +153,31 @@ describe('Synchronisation Socket.IO', () => {
     expect((await left).data.name).toBe('Yanis');
   });
 
+  it("relaie le klaxon aux autres visiteurs de l'accueil uniquement", async () => {
+    const [sender, other, outsider] = await Promise.all([connect(), connect(), connect()]);
+    await sender.timeout(3000).emitWithAck('lobby:join', {});
+    await other.timeout(3000).emitWithAck('lobby:join', {});
+
+    let senderEcho = false;
+    let outsiderHeard = false;
+    sender.on('klaxon', () => (senderEcho = true));
+    outsider.on('klaxon', () => (outsiderHeard = true));
+
+    const heard = nextEvent(other, 'klaxon');
+    sender.emit('klaxon', { dir: 'haut' });
+    expect(await heard).toEqual({ dir: 'haut' });
+
+    // Anti-spam : un second coup immédiat est ignoré, une direction invalide aussi.
+    let count = 0;
+    other.on('klaxon', () => count++);
+    sender.emit('klaxon', { dir: 'bas' });
+    outsider.emit('klaxon', { dir: 'bas' });
+    await new Promise((r) => setTimeout(r, 150));
+    expect(count).toBe(0);
+    expect(senderEcho).toBe(false);
+    expect(outsiderHeard).toBe(false);
+  });
+
   it('refuse de rejoindre une room invalide et permet de récupérer l’état après reconnexion', async () => {
     const a = await connect();
     expect((await joinRoom(a, 'pas-un-uuid')).ok).toBe(false);
