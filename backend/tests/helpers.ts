@@ -34,7 +34,7 @@ export async function createTacos(foodChoice: 'TACOS' | 'KEBAB' | 'BOTH' = 'BOTH
   return res.body as { state: any; participantId: string; participantToken: string; creatorToken: string };
 }
 
-export async function join(code: string, name: string) {
-  const res = await api().post('/api/sessions/join').send({ code, name }).expect(200);
+export async function join(sessionId: string, name: string) {
+  const res = await api().post(`/api/sessions/${sessionId}/join`).send({ name }).expect(200);
   return res.body as { state: any; participantId: string; participantToken: string };
 }

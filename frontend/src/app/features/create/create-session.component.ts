@@ -133,8 +133,8 @@ export class CreateSessionComponent {
         creatorToken: res.creatorToken,
         name,
       });
-      this.toast.success(`Session #${res.state.session.code} créée ! Partage le code 🎉`);
-      await this.router.navigate(['/session', res.state.session.code]);
+      this.toast.success('Session créée ! Partage le lien 🎉');
+      await this.router.navigate(['/session', res.state.session.id]);
     } catch (e) {
       this.error.set((e as Error).message);
     } finally {

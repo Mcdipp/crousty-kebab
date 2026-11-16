@@ -104,7 +104,6 @@ img { max-width: 100%; display: block; }
 }
 .textarea { min-height: 80px; resize: vertical; }
 .input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--orange); }
-.input--code { font: 800 1.8rem/1 var(--font-display); letter-spacing: .4em; text-align: center; padding-left: calc(14px + .4em); }
 .error-text { color: var(--red-dark); font-weight: 600; font-size: .9rem; margin: 4px 0 0; }
 
 /* ========== Cartes et utilitaires ========== */

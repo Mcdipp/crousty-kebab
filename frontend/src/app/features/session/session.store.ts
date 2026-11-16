@@ -86,16 +86,14 @@ export class SessionStore {
   /** Nom en cours d'inscription (évite de se notifier soi-même avant la réponse HTTP). */
   private joiningAs: string | null = null;
 
-  async load(code: string): Promise<void> {
+  async load(sessionId: string): Promise<void> {
     this.loading.set(true);
     this.loadError.set(null);
     try {
-      // 1er appel : on découvre l'id de session ; s'il est connu localement, on renvoie le jeton créateur.
-      const first = await this.api.getSessionByCode(code);
-      const identity = this.identityService.get(first.state.session.id);
-      this.identity.set(identity);
-      this.applyState(first.state, true);
-      this.startRealtime(first.state.session.id);
+      const { state } = await this.api.getSession(sessionId);
+      this.identity.set(this.identityService.get(state.session.id));
+      this.applyState(state, true);
+      this.startRealtime(state.session.id);
     } catch (e) {
       const err = toApiError(e);
       this.loadError.set(err.message);
@@ -166,7 +164,7 @@ export class SessionStore {
     if (!s) return false;
     this.joiningAs = name;
     return this.run(async () => {
-      const res = await this.api.joinSession(s.code, name);
+      const res = await this.api.joinSession(s.id, name);
       const identity: SessionIdentity = {
         participantId: res.participantId,
         participantToken: res.participantToken,
@@ -259,7 +257,7 @@ export class SessionStore {
       // Si la session a été fermée entre-temps, on se resynchronise.
       if (err.code === 'SESSION_CLOSED' && this.session()) {
         try {
-          const fresh = await this.api.getSessionByCode(this.session()!.code, this.session()!.id);
+          const fresh = await this.api.getSession(this.session()!.id);
           this.applyState(fresh.state, true);
         } catch {
           /* ignore */

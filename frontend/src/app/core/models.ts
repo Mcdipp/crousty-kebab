@@ -6,7 +6,6 @@ export type CroustyProduct = 'NATURE' | 'PIQUANT' | 'SUCRE' | 'SUCRE_PIQUANT';
 
 export interface SessionInfo {
   id: string;
-  code: string;
   type: SessionType;
   foodChoice: FoodChoice | null;
   scheduledAt: string;
@@ -77,7 +76,6 @@ export interface ApiErrorBody {
 
 export interface SessionSummary {
   id: string;
-  code: string;
   type: SessionType;
   foodChoice: FoodChoice | null;
   scheduledAt: string;

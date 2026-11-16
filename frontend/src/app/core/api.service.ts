@@ -78,20 +78,25 @@ export class ApiService {
     return this.call(firstValueFrom(this.http.post<CreateSessionResponse>('/api/sessions', body)));
   }
 
-  /** `knownSessionId` permet d'envoyer le jeton de gestion pour savoir si on est le créateur. */
-  getSessionByCode(code: string, knownSessionId?: string) {
+  /** Envoie le jeton de gestion s'il est connu, pour savoir si on est le créateur. */
+  getSession(sessionId: string) {
     return this.call(
       firstValueFrom(
-        this.http.get<{ state: SessionState; isCreator: boolean }>(`/api/sessions/${encodeURIComponent(code)}`, {
-          headers: this.headersFor(knownSessionId),
+        this.http.get<{ state: SessionState; isCreator: boolean }>(`/api/sessions/${encodeURIComponent(sessionId)}`, {
+          headers: this.headersFor(sessionId),
         }),
       ),
     );
   }
 
-  joinSession(code: string, name: string, participantToken?: string) {
+  joinSession(sessionId: string, name: string, participantToken?: string) {
     return this.call(
-      firstValueFrom(this.http.post<JoinSessionResponse>('/api/sessions/join', { code, name, participantToken })),
+      firstValueFrom(
+        this.http.post<JoinSessionResponse>(`/api/sessions/${encodeURIComponent(sessionId)}/join`, {
+          name,
+          participantToken,
+        }),
+      ),
     );
   }
 

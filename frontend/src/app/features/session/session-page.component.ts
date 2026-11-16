@@ -16,7 +16,7 @@ import { IdentityService } from '../../core/identity.service';
 import { formatHour } from '../../core/time';
 import { IconComponent } from '../../shared/icon.component';
 import { ModalComponent } from '../../shared/modal.component';
-import { ShareCodeComponent } from '../../shared/share-code.component';
+import { ShareLinkComponent } from '../../shared/share-link.component';
 import { CroustyBoardComponent } from './crousty-board.component';
 import { SessionStore } from './session.store';
 import { TacosBoardComponent } from './tacos-board.component';
@@ -25,7 +25,7 @@ import { TacosBoardComponent } from './tacos-board.component';
   selector: 'app-session-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [SessionStore],
-  imports: [RouterLink, IconComponent, ModalComponent, ShareCodeComponent, CroustyBoardComponent, TacosBoardComponent],
+  imports: [RouterLink, IconComponent, ModalComponent, ShareLinkComponent, CroustyBoardComponent, TacosBoardComponent],
   templateUrl: './session-page.component.html',
   styleUrl: './session-page.component.scss',
 })
@@ -35,8 +35,8 @@ export class SessionPageComponent {
   private readonly identityService = inject(IdentityService);
   private readonly title = inject(Title);
 
-  /** Paramètre de route :code */
-  readonly code = input.required<string>();
+  /** Paramètre de route :id */
+  readonly id = input.required<string>();
   /** ?rejoindre=1 : rejoindre automatiquement avec le pseudo mémorisé */
   readonly rejoindre = input<string | undefined>();
 
@@ -60,13 +60,13 @@ export class SessionPageComponent {
     destroyRef.onDestroy(() => this.store.destroy());
 
     effect(() => {
-      const code = this.code();
-      untracked(() => void this.store.load(code));
+      const id = this.id();
+      untracked(() => void this.store.load(id));
     });
 
     effect(() => {
       const s = this.s();
-      if (s) this.title.setTitle(`${s.type === 'CROUSTY' ? 'Crousty' : 'Tacos / Kebab'} #${s.code} — Crousty & Kebab`);
+      if (s) this.title.setTitle(`${s.type === 'CROUSTY' ? 'Crousty' : 'Tacos / Kebab'} de ${s.creatorName} — Crousty & Kebab`);
     });
 
     // Rejoindre automatiquement si l'utilisateur vient de l'accueil avec son pseudo.

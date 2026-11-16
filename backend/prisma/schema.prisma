@@ -41,7 +41,6 @@ enum CroustyProduct {
 
 model Session {
   id               String        @id @default(uuid()) @db.Uuid
-  code             String        @db.Char(4)
   type             SessionType
   foodChoice       FoodChoice?
   scheduledAt      DateTime
@@ -51,14 +50,14 @@ model Session {
   creatorTokenHash String        @db.Char(64)
   createdAt        DateTime      @default(now())
   closedAt         DateTime?
-  /// Au-delà de cette date, le code à 4 chiffres est libéré (la session reste en base).
+  /// Au-delà de cette date, la session disparaît de l’accueil et ne peut plus être rejointe (elle reste en base).
   expiresAt        DateTime
 
   participants   Participant[]
   orders         Order[]
   participations Participation[]
 
-  @@index([code, expiresAt])
+  @@index([expiresAt])
   @@index([status])
 }
 

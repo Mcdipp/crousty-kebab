@@ -4,7 +4,7 @@ import { computeCroustyStats, computeTacosStats } from './session.store';
 const base = (): SessionState => ({
   revision: 1,
   session: {
-    id: 's1', code: '0554', type: 'CROUSTY', foodChoice: null, scheduledAt: new Date().toISOString(),
+    id: 's1', type: 'CROUSTY', foodChoice: null, scheduledAt: new Date().toISOString(),
     description: null, status: 'OPEN', creatorName: 'Thomas', createdAt: '', closedAt: null,
   },
   participants: [

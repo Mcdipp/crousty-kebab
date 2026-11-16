@@ -12,8 +12,8 @@ describe('Participations Tacos / Kebab', () => {
   it("s'inscrire, modifier son choix et se retirer", async () => {
     const yanis = await createTacos('BOTH', 'Yanis');
     const id = yanis.state.session.id;
-    const thomas = await join(yanis.state.session.code, 'Thomas');
-    const lucas = await join(yanis.state.session.code, 'Lucas');
+    const thomas = await join(yanis.state.session.id, 'Thomas');
+    const lucas = await join(yanis.state.session.id, 'Lucas');
 
     await participate(id, thomas.participantToken, { choice: 'TACOS' }).expect(200);
     const l = await participate(id, lucas.participantToken, { choice: 'KEBAB', notes: 'sauce blanche' }).expect(200);
@@ -55,7 +55,7 @@ describe('Participations Tacos / Kebab', () => {
 
   it('bloque les inscriptions après clôture', async () => {
     const t = await createTacos();
-    const thomas = await join(t.state.session.code, 'Thomas');
+    const thomas = await join(t.state.session.id, 'Thomas');
     await api().post(`/api/sessions/${t.state.session.id}/close`).set('X-Creator-Token', t.creatorToken).expect(200);
     await participate(t.state.session.id, thomas.participantToken, { choice: 'TACOS' }).expect(409);
   });

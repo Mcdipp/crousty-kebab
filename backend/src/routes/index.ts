@@ -4,7 +4,6 @@ import * as orderCtrl from '../controllers/order.controller.js';
 import * as participationCtrl from '../controllers/participation.controller.js';
 import { createLimiter, validate } from '../middleware/index.js';
 import {
-  codeParams,
   createOrderSchema,
   createSessionSchema,
   joinSessionSchema,
@@ -27,9 +26,8 @@ router.get('/config', sessionCtrl.getConfig);
 // Sessions
 router.get('/sessions', sessionCtrl.list);
 router.post('/sessions', createLimiter, validate({ body: createSessionSchema }), sessionCtrl.create);
-router.post('/sessions', createLimiter, validate({ body: createSessionSchema }), sessionCtrl.create);
-router.post('/sessions/join', validate({ body: joinSessionSchema }), sessionCtrl.join);
-router.get('/sessions/:code', validate({ params: codeParams }), sessionCtrl.getByCode);
+router.get('/sessions/:id', validate({ params: sessionIdParams }), sessionCtrl.getById);
+router.post('/sessions/:id/join', validate({ params: sessionIdParams, body: joinSessionSchema }), sessionCtrl.join);
 router.post('/sessions/:id/close', validate({ params: sessionIdParams }), sessionCtrl.close);
 router.post('/sessions/:id/reopen', validate({ params: sessionIdParams }), sessionCtrl.reopen);
 

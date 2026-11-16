@@ -2,50 +2,22 @@ import { prisma, type Tx } from '../db.js';
 import { config } from '../config.js';
 import type { CreateSessionInput } from '../schemas/index.js';
 import { AppError, Conflict, Forbidden, NotFound, SessionClosed, Unauthorized } from '../utils/errors.js';
-import { generateToken, hashToken, nameKey, randomSessionCode, verifyToken } from '../utils/tokens.js';
-import { broadcast, broadcastLobby  } from '../sockets/realtime.js';
+import { generateToken, hashToken, nameKey, verifyToken } from '../utils/tokens.js';
+import { broadcast, broadcastLobby } from '../sockets/realtime.js';
 import { loadPublicState, type PublicSessionState } from './serializer.js';
 
-/** Verrou applicatif PostgreSQL qui sérialise l'attribution des codes. */
-const CODE_LOCK_KEY = 554_796_424;
-const RANDOM_ATTEMPTS = 40;
-
 const activeWhere = () => ({ expiresAt: { gt: new Date() } });
-
-/** Trouve un code à 4 chiffres libre parmi les sessions actives (dans la transaction verrouillée). */
-export async function allocateCode(tx: Tx): Promise<string> {
-  for (let i = 0; i < RANDOM_ATTEMPTS; i++) {
-    const code = randomSessionCode();
-    const taken = await tx.session.findFirst({ where: { code, ...activeWhere() }, select: { id: true } });
-    if (!taken) return code;
-  }
-  // Repli déterministe si l'espace est très rempli : on choisit parmi les codes réellement libres.
-  const used = await tx.session.findMany({ where: activeWhere(), select: { code: true } });
-  const usedSet = new Set(used.map((u) => u.code));
-  const free: string[] = [];
-  for (let n = 0; n < 10_000; n++) {
-    const c = n.toString().padStart(4, '0');
-    if (!usedSet.has(c)) free.push(c);
-  }
-  if (!free.length) {
-    throw new AppError(503, 'NO_CODE_AVAILABLE', 'Aucun code disponible pour le moment, réessaie plus tard.');
-  }
-  return free[Math.floor(Math.random() * free.length)]!;
-}
 
 export async function createSession(input: CreateSessionInput) {
   const creatorToken = generateToken();
   const participantToken = generateToken();
   const expiresAt = new Date(
-      Math.max(Date.now(), input.scheduledAt.getTime()) + config.SESSION_TTL_HOURS * 3_600_000,
+    Math.max(Date.now(), input.scheduledAt.getTime()) + config.SESSION_TTL_HOURS * 3_600_000,
   );
 
   const { sessionId, participantId } = await prisma.$transaction(async (tx) => {
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(${CODE_LOCK_KEY})::text`;
-    const code = await allocateCode(tx);
     const session = await tx.session.create({
       data: {
-        code,
         type: input.type,
         foodChoice: input.foodChoice,
         scheduledAt: input.scheduledAt,
@@ -72,28 +44,18 @@ export async function createSession(input: CreateSessionInput) {
   return { state, participantId, participantToken, creatorToken };
 }
 
-export async function findActiveSessionIdByCode(code: string): Promise<string> {
-  const s = await prisma.session.findFirst({
-    where: { code, ...activeWhere() },
-    orderBy: { createdAt: 'desc' },
-    select: { id: true },
-  });
-  if (!s) throw NotFound('Aucune session trouvée avec ce code. Vérifie les 4 chiffres !');
-  return s.id;
-}
-
 export async function getStateById(id: string): Promise<PublicSessionState> {
   const state = await loadPublicState(id);
   if (!state) throw NotFound('Session introuvable.');
   return state;
 }
 
-export async function joinSession(code: string, name: string, presentedToken?: string) {
-  const sessionId = await findActiveSessionIdByCode(code);
+export async function joinSession(sessionId: string, name: string, presentedToken?: string) {
   const key = nameKey(name);
 
   const result = await prisma.$transaction(async (tx) => {
-    const session = await tx.session.findUniqueOrThrow({ where: { id: sessionId } });
+    const session = await tx.session.findFirst({ where: { id: sessionId, ...activeWhere() } });
+    if (!session) throw NotFound('Cette session n’existe pas ou a expiré.');
     const existing = await tx.participant.findUnique({
       where: { sessionId_nameKey: { sessionId, nameKey: key } },
     });

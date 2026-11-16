@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { IdentityService } from '../../core/identity.service';
@@ -12,7 +11,7 @@ import { sortSessions, upsertSession } from './lobby';
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, IconComponent],
+  imports: [IconComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -23,10 +22,7 @@ export class HomeComponent {
   private readonly realtime = inject(RealtimeService);
 
   readonly name = signal(this.identity.name());
-  readonly code = signal('');
   readonly nameError = signal<string | null>(null);
-  readonly joinError = signal<string | null>(null);
-  readonly joining = signal(false);
 
   private readonly rawSessions = signal<SessionSummary[]>([]);
   readonly sessions = computed(() => sortSessions(this.rawSessions()));
@@ -94,11 +90,6 @@ export class HomeComponent {
     if (this.nameError()) this.nameError.set(null);
   }
 
-  onCodeInput(v: string): void {
-    this.code.set(v.replace(/\D/g, '').slice(0, 4));
-    this.joinError.set(null);
-  }
-
   create(type: 'crousty' | 'tacos-kebab'): void {
     if (!this.validName()) return;
     void this.router.navigate(['/creer', type]);
@@ -106,35 +97,10 @@ export class HomeComponent {
 
   openSession(s: SessionSummary): void{
     if (this.isMember(s) || s.status === 'CLOSED') {
-      void this.router.navigate(['/session', s.code]);
+      void this.router.navigate(['/session', s.id]);
       return;
     }
     if (!this.validName()) return;
-    void this.router.navigate(['/session', s.code], {queryParams: { rejoindre: 1} });
-  }
-
-  async join(): Promise<void> {
-    const name = this.validName();
-    if (!name) return;
-    const code = this.code();
-    if (!/^\d{4}$/.test(code)) {
-      this.joinError.set('Le code contient 4 chiffres.');
-      return;
-    }
-    this.joining.set(true);
-    try {
-      // Vérifie l'existence avant de naviguer, pour un message d'erreur immédiat.
-      const { state } = await this.api.getSessionByCode(code);
-      const known = this.identity.get(state.session.id);
-      if (!known && state.session.status === 'CLOSED') {
-        this.joinError.set('Cette session est clôturée : la commande a déjà été passée.');
-        return;
-      }
-      await this.router.navigate(['/session', code], { queryParams: known ? {} : { rejoindre: 1 } });
-    } catch (e) {
-      this.joinError.set((e as Error).message);
-    } finally {
-      this.joining.set(false);
-    }
+    void this.router.navigate(['/session', s.id], { queryParams: { rejoindre: 1 } });
   }
 }

@@ -19,17 +19,17 @@ export async function create(req: Request, res: Response) {
   res.status(201).json(result);
 }
 
-export async function getByCode(req: Request, res: Response) {
-  const { code } = params<{ code: string }>(req);
-  const id = await sessions.findActiveSessionIdByCode(code);
+export async function getById(req: Request, res: Response) {
+  const { id } = params<{ id: string }>(req);
   const state = await sessions.getStateById(id);
   const isCreator = await sessions.verifyCreator(id, tokensOf(req).creatorToken);
   res.set('Cache-Control', 'no-store').json({ state, isCreator });
 }
 
 export async function join(req: Request, res: Response) {
-  const { code, name, participantToken } = req.body as { code: string; name: string; participantToken?: string };
-  const result = await sessions.joinSession(code, name, participantToken);
+  const { id } = params<{ id: string }>(req);
+  const { name, participantToken } = req.body as { name: string; participantToken?: string };
+  const result = await sessions.joinSession(id, name, participantToken);
   res.status(200).json(result);
 }
 

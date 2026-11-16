@@ -14,7 +14,6 @@
 }
 .live--off { background: rgb(142 27 27 / .9); }
 .banner__title { font-size: clamp(1.5rem, 6.5vw, 2.3rem); margin-bottom: 8px; }
-.banner__title span { color: var(--orange); white-space: nowrap; }
 .banner__meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
 .meta { display: inline-flex; align-items: center; gap: 6px; }
 .meta strong { font: 800 1.15rem var(--font-display); }
