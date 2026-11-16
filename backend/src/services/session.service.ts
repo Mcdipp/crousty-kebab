@@ -4,6 +4,7 @@ import type { CreateSessionInput } from '../schemas/index.js';
 import { AppError, Conflict, Forbidden, NotFound, SessionClosed, Unauthorized } from '../utils/errors.js';
 import { generateToken, hashToken, nameKey, verifyToken } from '../utils/tokens.js';
 import { broadcast, broadcastLobby } from '../sockets/realtime.js';
+import { notifySessionOpened } from './discord.service.js';
 import { loadPublicState, type PublicSessionState } from './serializer.js';
 
 const activeWhere = () => ({ expiresAt: { gt: new Date() } });
@@ -41,6 +42,7 @@ export async function createSession(input: CreateSessionInput) {
 
   const state = (await loadPublicState(sessionId))!;
   broadcastLobby(state);
+  void notifySessionOpened(state);
   return { state, participantId, participantToken, creatorToken };
 }
 

@@ -11,6 +11,7 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 - [Stack technique](#-stack-technique)
 - [Architecture](#-architecture)
 - [Démarrage rapide avec Docker](#-démarrage-rapide-avec-docker)
+- [Notifications Discord](#notifications-discord)
 - [Développement local](#-développement-local)
 - [Tests](#-tests)
 - [API REST](#-api-rest)
@@ -47,6 +48,8 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 - Bouton **« J'AI APPELÉ LE RESTAURANT — FERMER LA COMMANDE »** (réservé au créateur) avec confirmation.
 - Statut `OPEN` / `CLOSED`, heure de clôture enregistrée, message « Commande clôturée ! Le restaurant a été contacté. Merci à tous ! » affiché instantanément chez tous.
 - Plus aucun ajout / modification / suppression (vérifié côté serveur). Le créateur peut **rouvrir**.
+
+**Notifications Discord** : à l'ouverture d'une session, un message est posté dans le salon Crousty ou Tacos / Kebab, avec une mention réglable par salon (`@everyone`, `@here` ou un rôle) et le lien de la session.
 
 **Temps réel** : chaque action est visible sans recharger la page (Socket.IO), avec indicateur *En direct / Hors ligne* et resynchronisation automatique après reconnexion.
 
@@ -141,6 +144,27 @@ docker compose exec backend npx prisma migrate deploy   # migrations manuelles
 ```
 
 Services : `database` (PostgreSQL, volume persistant `pgdata`, non exposé), `backend` (Express, non exposé), `frontend` (Nginx, seul port public). Tous sont sur le réseau interne `internal` avec healthchecks et `restart: unless-stopped`.
+
+---
+
+## Notifications Discord
+
+À la création d'une session, le backend poste un message dans un salon Discord via un **webhook** : un salon pour les commandes Crousty, un autre pour les sorties Tacos / Kebab. Le message mentionne les gens, indique l'heure (affichée par Discord dans le fuseau de chaque lecteur) et contient le lien de la session.
+
+1. Dans Discord : *Paramètres du salon* → *Intégrations* → *Webhooks* → *Nouveau webhook* → *Copier l'URL du webhook* (une fois par salon).
+2. Dans `.env` :
+
+```bash
+DISCORD_WEBHOOK_CROUSTY=https://discord.com/api/webhooks/<id>/<token>
+DISCORD_WEBHOOK_TACOS=https://discord.com/api/webhooks/<id>/<token>
+DISCORD_MENTION_CROUSTY=@everyone    # @here, l'identifiant d'un rôle, ou vide pour ne mentionner personne
+DISCORD_MENTION_TACOS=@here          # réglable indépendamment pour chaque salon
+PUBLIC_URL=https://crousty.example.fr   # pour mettre le lien de la session dans le message
+```
+
+3. `docker compose up -d` pour prendre en compte la configuration.
+
+Un webhook vide désactive le message pour ce type de session. Une erreur côté Discord est journalisée (sans l'URL, qui est secrète) mais n'empêche jamais la création de la session. Pour mentionner un rôle, active le *mode développeur* de Discord puis clic droit sur le rôle → *Copier l'identifiant*.
 
 ---
 
