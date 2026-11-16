@@ -50,7 +50,7 @@
       <div class="closed" role="alert" [class.closed--fresh]="store.justClosed()">
         <span class="closed__emoji" aria-hidden="true">🎉</span>
         <div>
-          <strong>Commande clôturée ! Le restaurant a été contacté. Merci à tous !</strong>
+          <strong>Commande clôturée ! Le restaurant a été contacté. Merci à tout le monde !</strong>
           <p>Clôturée à {{ closedHour() }}. La liste finale reste visible ci-dessous.</p>
         </div>
       </div>
@@ -62,8 +62,8 @@
           <h2 id="join-h">Rejoindre la session</h2>
           <p class="muted">Entre ton prénom pour participer, sans compte.</p>
           <form class="joinbox__form" (submit)="$event.preventDefault(); join()">
-            <label for="join-name" class="visually-hidden">Votre prénom ou pseudo</label>
-            <input id="join-name" class="input" maxlength="30" autocomplete="nickname" placeholder="Votre prénom ou pseudo"
+            <label for="join-name" class="visually-hidden">Ton prénom ou pseudo</label>
+            <input id="join-name" class="input" maxlength="30" autocomplete="nickname" placeholder="Ton prénom ou pseudo"
                    [value]="joinName()" (input)="joinName.set($any($event.target).value)" />
             <button type="submit" class="btn btn--lg" [disabled]="store.busy()">
               <app-icon name="login" /> Rejoindre
@@ -85,7 +85,7 @@
 
     @if (store.isCreator()) {
       <section class="admin card" aria-labelledby="admin-h">
-        <h2 id="admin-h">Espace créateur</h2>
+        <h2 id="admin-h">Espace organisation</h2>
         @if (session.status === 'OPEN') {
           <p class="muted">Quand tu as appelé le restaurant, clôture la commande : plus personne ne pourra la modifier.</p>
           <button type="button" class="btn btn--lg btn--block btn--red" (click)="confirmClose.set(true)" [disabled]="store.busy()">
@@ -99,12 +99,12 @@
         }
       </section>
     } @else if (session.status === 'OPEN') {
-      <p class="muted center">Seul {{ session.creatorName }} (créateur) peut clôturer la commande.</p>
+      <p class="muted center">Seule la personne qui organise ({{ session.creatorName }}) peut clôturer la commande.</p>
     }
   </div>
 
   <app-modal title="Clôturer la commande ?" [open]="confirmClose()" (closed)="confirmClose.set(false)">
-    <p>Êtes-vous sûr d’avoir appelé le restaurant et de vouloir clôturer la commande&nbsp;?</p>
+    <p>Tu as bien appelé le restaurant et tu veux clôturer la commande&nbsp;?</p>
     <p class="muted">Plus personne ne pourra ajouter, modifier ou supprimer de commande.</p>
     <div class="modal-actions">
       <button type="button" class="btn btn--ghost" (click)="confirmClose.set(false)">Annuler</button>

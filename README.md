@@ -1,8 +1,8 @@
 # Crousty & Kebab — Commandes pour dejeuner au wokami de place Ravezies à Bordeaux
 
-Application web (PWA) pour organiser **des commandes groupées de Crousty** et **des sorties Tacos / Kebab** entre amis — **sans compte, sans mot de passe**, avec une synchronisation **en temps réel**.
+Application web (PWA) pour organiser **des commandes groupées de Crousty** et **des sorties Tacos / Kebab** entre étudiants — **sans compte, sans mot de passe**, avec une synchronisation **en temps réel**.
 
-> Tu entres ton prénom, tu crées une session, tu partages le lien (ou les autres la retrouvent directement sur l'accueil), tout le monde ajoute sa commande et la liste se met à jour en direct sur tous les téléphones. Quand quelqu'un a appelé le restaurant, le créateur clôture la commande.
+> Tu entres ton prénom, tu crées une session, tu partages le lien (ou les autres la retrouvent directement sur l'accueil), tout le monde ajoute sa commande et la liste se met à jour en direct sur tous les téléphones. Quand quelqu'un a appelé le restaurant, la personne qui a créé la session la clôture.
 ---
 
 ## Sommaire
@@ -261,7 +261,7 @@ Chaque événement transporte `{ state, actor, data }` où `state` est l'état p
 ## Limites connues
 
 - L'identité est liée au navigateur : vider ses données ou changer de téléphone fait perdre ses droits (le créateur perd alors la possibilité de clôturer). Il suffit de rejoindre avec un autre pseudo pour continuer à participer.
-- Une seule instance du backend est prévue (Socket.IO sans adaptateur Redis) — largement suffisant pour un usage entre amis.
+- Une seule instance du backend est prévue (Socket.IO sans adaptateur Redis) — largement suffisant pour l'usage prévu (quelques dizaines d'étudiants).
 - Les illustrations sont des SVG originaux ; tu peux les remplacer par de vraies photos dans `frontend/public/images/` (mêmes noms de fichiers).
 
 ---

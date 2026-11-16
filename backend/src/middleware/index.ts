@@ -38,7 +38,7 @@ export const apiLimiter = rateLimit({
   limit: config.RATE_LIMIT_MAX,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
-  message: { error: { code: 'RATE_LIMITED', message: 'Trop de requêtes, calme-toi un peu 😅 Réessaie dans quelques minutes.' } },
+  message: { error: { code: 'RATE_LIMITED', message: 'Trop de requêtes. Réessaie dans quelques minutes.' } },
 });
 
 export const createLimiter = rateLimit({

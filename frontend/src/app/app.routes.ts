@@ -3,7 +3,7 @@ import type { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    title: 'Crousty & Kebab — Commandes entre amis',
+    title: 'Crousty & Kebab — Repas entre étudiants',
     loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
   },
   {

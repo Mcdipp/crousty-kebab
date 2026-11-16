@@ -48,7 +48,7 @@ export class ShareLinkComponent {
       }
     }
     (await copyText(`${text} → ${url}`))
-      ? this.toast.success('Lien copié, colle-le dans ton groupe 🔗')
+      ? this.toast.success('Lien copié, colle-le dans ta conversation 🔗')
       : this.toast.error('Partage impossible : ' + url);
   }
 }

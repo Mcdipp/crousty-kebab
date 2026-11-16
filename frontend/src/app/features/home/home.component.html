@@ -1,7 +1,7 @@
 <section class="hero">
   <div class="container hero__inner">
-    <p class="hero__kicker">Commandes groupées entre chepos max</p>
-    <h1>CROUSTY VAMOOO ! Comment tu t’appelles&nbsp;?</h1>
+    <p class="hero__kicker">Commandes groupées et sorties repas entre étudiants</p>
+    <h1>Bienvenue ! Comment tu t’appelles&nbsp;?</h1>
     <div class="field name-field">
       <label for="name" class="visually-hidden">Ton prénom ou pseudo</label>
       <input
@@ -11,7 +11,7 @@
         autocomplete="nickname"
         enterkeyhint="done"
         maxlength="30"
-        placeholder="Votre prénom ou pseudo"
+        placeholder="Ton prénom ou pseudo"
         [value]="name()"
         (input)="onNameInput($any($event.target).value)"
         [attr.aria-invalid]="!!nameError()"
@@ -94,7 +94,7 @@
       <img class="cat__img" src="images/crousty-hero.png" alt="Boîte de Crousty, morceaux de poulet croustillant" width="400" height="260" />
       <div class="cat__body">
         <h2>Crousty</h2>
-        <p>Une commande groupée de Crousty : chacun ajoute ce qu’il veut, quelqu’un appelle, tout le monde mange.</p>
+        <p>Une commande groupée de Crousty : chaque personne ajoute ce qu’elle veut, une seule appelle le restaurant.</p>
         <button type="button" class="btn btn--lg btn--block" (click)="create('crousty')">
           <app-icon name="bag" /> Commander un Crousty
         </button>
