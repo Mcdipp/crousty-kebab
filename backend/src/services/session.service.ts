@@ -143,7 +143,7 @@ async function setStatus(sessionId: string, creatorToken: string | undefined, op
   const session = await prisma.session.findUnique({ where: { id: sessionId } });
   if (!session) throw NotFound('Session introuvable.');
   if (!verifyToken(creatorToken, session.creatorTokenHash)) {
-    throw Forbidden('Seul le créateur de la session peut clôturer ou rouvrir la commande.');
+    throw Forbidden('Seule la personne qui a créé la session peut la clôturer ou la rouvrir.');
   }
   await prisma.session.update({
     where: { id: sessionId },

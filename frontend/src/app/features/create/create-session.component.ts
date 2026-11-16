@@ -27,7 +27,7 @@ import { IconComponent } from '../../shared/icon.component';
         <div class="field">
           <label for="creator">Ton prénom</label>
           <input id="creator" class="input" name="creator" maxlength="30" autocomplete="nickname"
-                 [(ngModel)]="name" required placeholder="Votre prénom ou pseudo" />
+                 [(ngModel)]="name" required placeholder="Ton prénom ou pseudo" />
         </div>
 
         <div class="field">
@@ -54,7 +54,7 @@ import { IconComponent } from '../../shared/icon.component';
         <div class="field">
           <label for="desc">Description <span class="muted">(facultatif)</span></label>
           <textarea id="desc" class="textarea" name="desc" maxlength="300" [(ngModel)]="description"
-                    [placeholder]="isTacos() ? 'Ex : on part de la résidence à pied' : 'Ex : on commande pour le match'"></textarea>
+                    [placeholder]="isTacos() ? 'Ex : on part de la résidence à pied' : 'Ex : pause déj entre deux cours'"></textarea>
         </div>
 
         @if (error()) {
