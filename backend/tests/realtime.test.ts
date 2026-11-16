@@ -167,15 +167,24 @@ describe('Synchronisation Socket.IO', () => {
     sender.emit('klaxon', { dir: 'haut' });
     expect(await heard).toEqual({ dir: 'haut' });
 
-    // Anti-spam : un second coup immédiat est ignoré, une direction invalide aussi.
+    // Anti-spam : un second coup immédiat est ignoré, hors accueil aussi.
     let count = 0;
     other.on('klaxon', () => count++);
     sender.emit('klaxon', { dir: 'bas' });
+    sender.emit('klaxon', { dir: 'haut' });
     outsider.emit('klaxon', { dir: 'bas' });
-    await new Promise((r) => setTimeout(r, 150));
+    await new Promise((r) => setTimeout(r, 200));
     expect(count).toBe(0);
     expect(senderEcho).toBe(false);
     expect(outsiderHeard).toBe(false);
+
+    // Basculer de haut en bas sans relâcher passe après un court délai, pas la même direction.
+    const flipped = nextEvent(other, 'klaxon');
+    sender.emit('klaxon', { dir: 'haut' });
+    sender.emit('klaxon', { dir: 'bas' });
+    expect(await flipped).toEqual({ dir: 'bas' });
+    await new Promise((r) => setTimeout(r, 100));
+    expect(count).toBe(1);
   });
 
   it('refuse de rejoindre une room invalide et permet de récupérer l’état après reconnexion', async () => {

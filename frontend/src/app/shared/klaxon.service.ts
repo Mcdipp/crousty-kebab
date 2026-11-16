@@ -2,8 +2,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { RealtimeService, type KlaxonDir } from '../core/realtime.service';
 import { ToastService } from '../core/toast.service';
 
-/** Doit rester aligné sur KLAXON_COOLDOWN_MS côté backend. */
+/** Doivent rester alignés sur KLAXON_COOLDOWN_MS / KLAXON_FLIP_COOLDOWN_MS côté backend. */
 const COOLDOWN_MS = 600;
+const FLIP_COOLDOWN_MS = 150;
 
 /**
  * Easter egg de l'accueil : le levier fait klaxonner tout le monde.
@@ -14,7 +15,7 @@ export class KlaxonService {
   private readonly realtime = inject(RealtimeService);
   private readonly toast = inject(ToastService);
   private readonly sounds = new Map<KlaxonDir, HTMLAudioElement>();
-  private lastHonk = 0;
+  private lastHonk: { dir: KlaxonDir; at: number } | null = null;
   /** Incrémenté à chaque klaxon (local ou distant), pour animer le levier. */
   readonly honks = signal(0);
 
@@ -24,8 +25,9 @@ export class KlaxonService {
 
   honk(dir: KlaxonDir): void {
     const now = Date.now();
-    if (now - this.lastHonk < COOLDOWN_MS) return;
-    this.lastHonk = now;
+    const wait = this.lastHonk?.dir === dir ? COOLDOWN_MS : FLIP_COOLDOWN_MS;
+    if (this.lastHonk && now - this.lastHonk.at < wait) return;
+    this.lastHonk = { dir, at: now };
     this.play(dir, false);
     this.realtime.sendKlaxon(dir);
   }

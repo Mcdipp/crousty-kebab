@@ -115,7 +115,8 @@ export class KlaxonLeverComponent {
   protected readonly angle = signal(0);
   protected readonly dragging = signal(false);
   protected readonly honking = signal(false);
-  private armed = true;
+  /** Direction du dernier klaxon de ce geste ; null = levier réarmé. */
+  private lastTriggered: KlaxonDir | null = null;
   private honkTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
@@ -138,7 +139,7 @@ export class KlaxonLeverComponent {
     event.preventDefault();
     this.plate().nativeElement.setPointerCapture(event.pointerId);
     this.dragging.set(true);
-    this.armed = true;
+    this.lastTriggered = null;
     this.follow(event);
   }
 
@@ -171,10 +172,12 @@ export class KlaxonLeverComponent {
     const angle = Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, deg));
     this.angle.set(angle);
 
-    if (Math.abs(angle) < REARM_ANGLE) this.armed = true;
-    else if (this.armed && Math.abs(angle) >= TRIGGER_ANGLE) {
-      this.armed = false;
-      this.klaxon.honk(angle < 0 ? 'haut' : 'bas');
+    // Un geste rapide peut sauter la zone centrale : changer de direction réarme aussi le levier.
+    const dir: KlaxonDir = angle < 0 ? 'haut' : 'bas';
+    if (Math.abs(angle) < REARM_ANGLE) this.lastTriggered = null;
+    else if (Math.abs(angle) >= TRIGGER_ANGLE && this.lastTriggered !== dir) {
+      this.lastTriggered = dir;
+      this.klaxon.honk(dir);
     }
   }
 }
