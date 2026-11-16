@@ -51,11 +51,6 @@ export class SessionPageComponent {
   readonly outing = computed(() => OUTING_LABEL[this.s()?.foodChoice ?? 'BOTH']);
   readonly heading = computed(() => (this.isTacos() ? `SORTIE ${this.outing().toUpperCase()}` : 'CROUSTY — SESSION'));
   readonly when = computed(() => (this.s() ? formatWhen(this.s()!.scheduledAt) : ''));
-  readonly shareTitle = computed(() =>
-    this.isTacos()
-      ? `On va au ${this.outing().toLowerCase()} ${this.when()}, tu viens ?`
-      : `Commande Crousty groupée ${this.when()}, tu prends quoi ?`,
-  );
   readonly closedHour = computed(() => (this.s()?.closedAt ? formatHour(this.s()!.closedAt!) : ''));
   readonly phoneDisplay = computed(() => this.croustyPhone().replace(/(\d{2})(?=\d)/g, '$1 ').trim());
   readonly needsJoin = computed(() => !this.store.loading() && !!this.s() && !this.store.identity());

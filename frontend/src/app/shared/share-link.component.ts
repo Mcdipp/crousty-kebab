@@ -11,9 +11,6 @@ import { IconComponent } from './icon.component';
       <button type="button" class="btn btn--light" (click)="copyLink()">
         <app-icon name="copy" [size]="18" /> Copier le lien
       </button>
-      <button type="button" class="btn btn--light" (click)="shareLink()">
-        <app-icon name="share" [size]="18" /> Partager
-      </button>
     </div>
   `,
   styles: `
@@ -22,7 +19,6 @@ import { IconComponent } from './icon.component';
 })
 export class ShareLinkComponent {
   readonly sessionId = input.required<string>();
-  readonly title = input('Rejoins la session !');
   private readonly toast = inject(ToastService);
 
   private link(): string {
@@ -36,21 +32,6 @@ export class ShareLinkComponent {
       : this.toast.error('Impossible de copier automatiquement : ' + url);
   }
 
-  protected async shareLink(): Promise<void> {
-    const url = this.link();
-    const text = this.title();
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Crousty & Kebab', text, url });
-        return;
-      } catch (e) {
-        if ((e as DOMException)?.name === 'AbortError') return;
-      }
-    }
-    (await copyText(`${text} → ${url}`))
-      ? this.toast.success('Lien copié, colle-le dans ta conversation 🔗')
-      : this.toast.error('Partage impossible : ' + url);
-  }
 }
 
 export async function copyText(text: string): Promise<boolean> {

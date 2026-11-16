@@ -33,7 +33,7 @@
         @if (session.description) { · {{ session.description }} }
       </p>
 
-      <app-share-link [sessionId]="session.id" [title]="shareTitle()" />
+      <app-share-link [sessionId]="session.id" />
 
       @if (!isTacos()) {
         <a class="phone" [href]="'tel:' + croustyPhone()">
