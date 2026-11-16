@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, type OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { IdentityService } from '../../core/identity.service';
 import type { FoodChoice, SessionType } from '../../core/models';
-import { defaultTimeValue, timeValueToDate } from '../../core/time';
+import { dateTimeToDate, dayValue, defaultTimeValue, timeValueToDate } from '../../core/time';
 import { ToastService } from '../../core/toast.service';
 import { IconComponent } from '../../shared/icon.component';
 
@@ -30,15 +30,31 @@ import { IconComponent } from '../../shared/icon.component';
                  [(ngModel)]="name" required placeholder="Ton prénom ou pseudo" />
         </div>
 
-        <div class="field">
-          <label for="time">Heure prévue de la commande</label>
-          <input id="time" class="input input--time" type="time" name="time" step="300" [(ngModel)]="time" required />
-          <span class="hint">Si l’heure est déjà passée, on considère que c’est pour demain.</span>
-        </div>
-
         @if (isTacos()) {
           <fieldset class="field choices">
-            <legend class="label">Au menu</legend>
+            <legend class="label">Quel jour ?</legend>
+            <div class="seg" role="radiogroup">
+              @for (d of quickDays; track d.value) {
+                <label class="seg__opt" [class.seg__opt--on]="day() === d.value">
+                  <input type="radio" name="day" [value]="d.value" [checked]="day() === d.value" (change)="day.set(d.value)" />
+                  {{ d.label }}
+                </label>
+              }
+              <label class="seg__opt seg__opt--date" [class.seg__opt--on]="!isQuickDay()">
+                <span class="visually-hidden">Autre jour</span>
+                <input type="date" name="date" class="seg__date" [min]="minDay" [max]="maxDay" [value]="day()"
+                       (change)="day.set($any($event.target).value)" />
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="time">Heure du rendez-vous</label>
+            <input id="time" class="input input--time" type="time" name="time" step="300" [(ngModel)]="time" required />
+          </div>
+
+          <fieldset class="field choices">
+            <legend class="label">On va où ?</legend>
             <div class="seg" role="radiogroup">
               @for (c of foodChoices; track c.value) {
                 <label class="seg__opt" [class.seg__opt--on]="foodChoice() === c.value">
@@ -49,12 +65,18 @@ import { IconComponent } from '../../shared/icon.component';
               }
             </div>
           </fieldset>
+        } @else {
+          <div class="field">
+            <label for="time">Heure prévue de la commande</label>
+            <input id="time" class="input input--time" type="time" name="time" step="300" [(ngModel)]="time" required />
+            <span class="hint">Si l’heure est déjà passée, on considère que c’est pour demain.</span>
+          </div>
         }
 
         <div class="field">
           <label for="desc">Description <span class="muted">(facultatif)</span></label>
           <textarea id="desc" class="textarea" name="desc" maxlength="300" [(ngModel)]="description"
-                    [placeholder]="isTacos() ? 'Ex : on part de la résidence à pied' : 'Ex : pause déj entre deux cours'"></textarea>
+                    [placeholder]="isTacos() ? 'Ex : rendez-vous devant la BU' : 'Ex : pause déj entre deux cours'"></textarea>
         </div>
 
         @if (error()) {
@@ -86,9 +108,14 @@ import { IconComponent } from '../../shared/icon.component';
     .seg__opt:has(input:focus-visible) { outline: 3px solid var(--orange); outline-offset: 2px; }
     .seg__opt--on { border-color: var(--red-dark); background: #fbe6e2; }
     .seg__emoji { font-size: 1.6rem; }
+    .seg__opt--date { padding: 6px; justify-content: center; }
+    .seg__opt--date input.seg__date {
+      position: static; opacity: 1; pointer-events: auto; width: 100%; min-width: 0; border: 0; background: transparent;
+      font: inherit; text-align: center; color: inherit;
+    }
   `,
 })
-export class CreateSessionComponent {
+export class CreateSessionComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly identity = inject(IdentityService);
   private readonly router = inject(Router);
@@ -100,6 +127,15 @@ export class CreateSessionComponent {
 
   readonly name = signal(this.identity.name());
   readonly time = signal(defaultTimeValue());
+  readonly quickDays = [
+    { value: dayValue(0), label: 'Aujourd’hui' },
+    { value: dayValue(1), label: 'Demain' },
+  ];
+  readonly minDay = dayValue(0);
+  readonly maxDay = dayValue(6);
+  /** Une sortie, c'est souvent « demain on y va ? ». */
+  readonly day = signal(dayValue(1));
+  readonly isQuickDay = computed(() => this.quickDays.some((d) => d.value === this.day()));
   readonly description = signal('');
   readonly foodChoice = signal<FoodChoice>('BOTH');
   readonly submitting = signal(false);
@@ -108,14 +144,22 @@ export class CreateSessionComponent {
   readonly foodChoices: { value: FoodChoice; label: string; emoji: string }[] = [
     { value: 'TACOS', label: 'Tacos', emoji: '🌯' },
     { value: 'KEBAB', label: 'Kebab', emoji: '🥙' },
-    { value: 'BOTH', label: 'Les deux', emoji: '🤤' },
+    { value: 'BOTH', label: 'À décider', emoji: '🤔' },
   ];
+
+  ngOnInit(): void {
+    // Les inputs de route ne sont disponibles qu'ici. Sortie : midi par défaut.
+    if (this.isTacos()) this.time.set('12:00');
+  }
 
   async submit(): Promise<void> {
     const name = this.name().trim().replace(/\s+/g, ' ');
     if (!name) return this.error.set('Indique ton prénom.');
-    const when = timeValueToDate(this.time());
-    if (!when) return this.error.set('Choisis une heure valide.');
+    const when = this.isTacos() ? dateTimeToDate(this.day(), this.time()) : timeValueToDate(this.time());
+    if (!when) return this.error.set(this.isTacos() ? 'Choisis un jour et une heure valides.' : 'Choisis une heure valide.');
+    if (this.isTacos() && when.getTime() < Date.now()) {
+      return this.error.set('Ce moment est déjà passé : choisis une autre heure ou un autre jour.');
+    }
     this.error.set(null);
     this.submitting.set(true);
     try {

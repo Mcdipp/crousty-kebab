@@ -1,7 +1,6 @@
 export type SessionType = 'CROUSTY' | 'TACOS_KEBAB';
 export type SessionStatus = 'OPEN' | 'CLOSED';
 export type FoodChoice = 'TACOS' | 'KEBAB' | 'BOTH';
-export type ParticipationChoice = 'TACOS' | 'KEBAB';
 export type CroustyProduct = 'NATURE' | 'PIQUANT' | 'SUCRE' | 'SUCRE_PIQUANT';
 
 export interface SessionInfo {
@@ -37,7 +36,7 @@ export interface Order {
 export interface Participation {
   id: string;
   participantId: string;
-  choice: ParticipationChoice;
+  /** Petit mot facultatif (« j'arrive vers 12h15 »…). */
   notes: string | null;
   createdAt: string;
   updatedAt: string;

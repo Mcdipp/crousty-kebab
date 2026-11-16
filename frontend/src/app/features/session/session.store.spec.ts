@@ -45,16 +45,15 @@ describe('computeCroustyStats', () => {
 });
 
 describe('computeTacosStats', () => {
-  it('liste qui vient, compte tacos / kebab et les non-répondants', () => {
+  it('liste qui vient et les personnes qui n’ont pas encore répondu', () => {
     const s = base();
     s.participations = [
-      { id: 'a', participantId: 'p1', choice: 'TACOS', notes: null, createdAt: '', updatedAt: '' },
-      { id: 'b', participantId: 'p2', choice: 'KEBAB', notes: 'sauce blanche', createdAt: '', updatedAt: '' },
+      { id: 'a', participantId: 'p1', notes: null, createdAt: '', updatedAt: '' },
+      { id: 'b', participantId: 'p2', notes: 'j’arrive vers 12h15', createdAt: '', updatedAt: '' },
     ];
     const st = computeTacosStats(s);
     expect(st.total).toBe(2);
-    expect(st.tacos).toBe(1);
-    expect(st.kebab).toBe(1);
+    expect(st.going[1]!.notes).toBe('j’arrive vers 12h15');
     expect(st.going.map((g) => g.name)).toEqual(['Thomas', 'Lucas']);
     expect(st.pending.map((p) => p.name)).toEqual(['Mehdi']);
   });

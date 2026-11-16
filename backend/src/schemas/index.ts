@@ -26,7 +26,6 @@ const optionalText = (max: number) =>
 export const uuidSchema = z.uuid('Identifiant invalide.');
 
 export const croustyProductSchema = z.enum(['NATURE', 'PIQUANT', 'SUCRE', 'SUCRE_PIQUANT']);
-export const participationChoiceSchema = z.enum(['TACOS', 'KEBAB']);
 
 export const createSessionSchema = z
   .object({
@@ -77,7 +76,6 @@ export const updateOrderSchema = z
 
 export const participationSchema = z
   .object({
-    choice: participationChoiceSchema,
     notes: optionalText(200),
   })
   .strict();

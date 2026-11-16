@@ -10,7 +10,7 @@ interface Tokens {
   creatorToken?: string;
 }
 
-/** Inscription ou modification du choix (upsert) pour le participant appelant. */
+/** « J'y vais » (ou mise à jour du petit mot) pour le participant appelant. */
 export async function upsertParticipation(sessionId: string, input: ParticipationInput, tokens: Tokens) {
   const actor = await resolveActor(sessionId, tokens.participantToken, tokens.creatorToken);
   let participantId = actor.participantId;
@@ -20,20 +20,14 @@ export async function upsertParticipation(sessionId: string, input: Participatio
     if (s.type !== 'TACOS_KEBAB') {
       throw BadRequest('WRONG_SESSION_TYPE', 'Cette session n’est pas une sortie Tacos / Kebab.');
     }
-    if (s.foodChoice && s.foodChoice !== 'BOTH' && s.foodChoice !== input.choice) {
-      throw BadRequest(
-        'CHOICE_NOT_ALLOWED',
-        `Cette sortie est uniquement ${s.foodChoice === 'TACOS' ? 'Tacos' : 'Kebab'}.`,
-      );
-    }
     if (!participantId) {
       const creator = await tx.participant.findFirst({ where: { sessionId, isCreator: true }, select: { id: true } });
       participantId = creator!.id;
     }
     await tx.participation.upsert({
       where: { sessionId_participantId: { sessionId, participantId } },
-      create: { sessionId, participantId, choice: input.choice, notes: input.notes },
-      update: { choice: input.choice, notes: input.notes },
+      create: { sessionId, participantId, notes: input.notes },
+      update: { notes: input.notes },
     });
   });
 
@@ -47,12 +41,12 @@ export async function upsertParticipation(sessionId: string, input: Participatio
 export async function removeParticipation(sessionId: string, participantId: string, tokens: Tokens) {
   const actor = await resolveActor(sessionId, tokens.participantToken, tokens.creatorToken);
   if (!actor.isCreator && actor.participantId !== participantId) {
-    throw Forbidden('Tu ne peux retirer que ta propre participation.');
+    throw Forbidden('Tu ne peux retirer que ta propre inscription.');
   }
   await prisma.$transaction(async (tx) => {
     await assertSessionOpen(tx, sessionId);
     const deleted = await tx.participation.deleteMany({ where: { sessionId, participantId } });
-    if (deleted.count === 0) throw NotFound('Aucune participation à retirer.');
+    if (deleted.count === 0) throw NotFound('Aucune inscription à retirer.');
   });
   const state = (await loadPublicState(sessionId))!;
   const name = state.participants.find((p) => p.id === participantId)?.name ?? null;

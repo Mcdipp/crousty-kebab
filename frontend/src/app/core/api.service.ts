@@ -9,7 +9,6 @@ import type {
   JoinSessionResponse,
   Order,
   Participation,
-  ParticipationChoice,
   SessionState,
   SessionType,
   SessionSummary,
@@ -151,7 +150,7 @@ export class ApiService {
     );
   }
 
-  upsertParticipation(sessionId: string, body: { choice: ParticipationChoice; notes?: string | null }) {
+  upsertParticipation(sessionId: string, body: { notes?: string | null }) {
     return this.call(
       firstValueFrom(
         this.http.post<{ participation: Participation; state: SessionState }>(

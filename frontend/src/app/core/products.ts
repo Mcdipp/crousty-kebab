@@ -1,4 +1,4 @@
-import type { CroustyProduct, ParticipationChoice } from './models';
+import type { CroustyProduct, FoodChoice } from './models';
 
 export interface ProductInfo {
   id: CroustyProduct;
@@ -47,7 +47,9 @@ export const CROUSTY_PRODUCTS: readonly ProductInfo[] = [
 export const productName = (id: CroustyProduct): string =>
   CROUSTY_PRODUCTS.find((p) => p.id === id)?.name ?? id;
 
-export const CHOICE_LABEL: Record<ParticipationChoice, string> = {
+/** Destination d'une sortie Tacos / Kebab. */
+export const OUTING_LABEL: Record<FoodChoice, string> = {
   TACOS: 'Tacos',
   KEBAB: 'Kebab',
+  BOTH: 'Tacos / Kebab',
 };

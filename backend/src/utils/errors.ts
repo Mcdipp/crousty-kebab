@@ -15,6 +15,6 @@ export const Forbidden = (msg = "Tu n'as pas le droit de faire ça.") =>
 export const Unauthorized = (msg = 'Jeton manquant ou invalide.') =>
   new AppError(401, 'UNAUTHORIZED', msg);
 export const SessionClosed = () =>
-  new AppError(409, 'SESSION_CLOSED', 'La commande est clôturée : plus aucune modification possible.');
+  new AppError(409, 'SESSION_CLOSED', 'La session est clôturée : plus aucune modification possible.');
 export const Conflict = (code: string, msg: string) => new AppError(409, code, msg);
 export const BadRequest = (code: string, msg: string) => new AppError(400, code, msg);

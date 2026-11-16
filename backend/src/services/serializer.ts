@@ -26,7 +26,6 @@ const publicInclude = {
     select: {
       id: true,
       participantId: true,
-      choice: true,
       notes: true,
       createdAt: true,
       updatedAt: true,
