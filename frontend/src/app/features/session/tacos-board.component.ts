@@ -35,7 +35,7 @@ import { SessionStore } from './session.store';
     }
 
     <section class="stats" aria-label="Récapitulatif">
-      <div class="stat stat--main"><strong>{{ stats().total }}</strong><span>{{ stats().total > 1 ? 'Personnes viennent' : 'Personne vient' }}</span></div>
+      <div class="stat stat--main"><strong>{{ stats().total }}</strong><span>{{ stats().total > 1 ? 'Personnes partantes' : 'Personne partante' }}</span></div>
       <div class="stat"><strong>{{ stats().pending.length }}</strong><span>Pas encore répondu</span></div>
     </section>
 

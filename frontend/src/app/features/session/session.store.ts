@@ -222,7 +222,7 @@ export class SessionStore {
       const had = !!this.myParticipation();
       const res = await this.api.upsertParticipation(this.session()!.id, { notes });
       this.applyState(res.state);
-      this.toast.success(had ? 'Petit mot mis à jour ✅' : 'C’est noté, à tout à l’heure ! 🎉');
+      this.toast.success(had ? 'Petit mot mis à jour ✅' : 'C’est noté, à bientôt ! 🎉');
     });
   }
 
