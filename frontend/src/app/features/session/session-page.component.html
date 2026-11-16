@@ -20,7 +20,7 @@
         </span>
       </div>
 
-      <h1 class="banner__title">{{ heading() }} <span>#{{ session.code }}</span></h1>
+      <h1 class="banner__title">{{ heading() }}</h1>
       <div class="banner__meta">
         <span class="meta"><app-icon name="clock" [size]="18" /> Heure prévue : <strong>{{ hour() }}</strong></span>
         @if (session.status === 'OPEN') {
@@ -33,7 +33,7 @@
         @if (session.description) { · {{ session.description }} }
       </p>
 
-      <app-share-code [code]="session.code"
+      <app-share-link [sessionId]="session.id"
         [title]="isTacos() ? 'On va au tacos / kebab, tu viens ?' : 'Commande Crousty groupée, tu prends quoi ?'" />
 
       @if (!isTacos()) {

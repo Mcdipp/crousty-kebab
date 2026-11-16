@@ -11,7 +11,7 @@ const envSchema = z.object({
   TRUST_PROXY: z.coerce.number().int().min(0).default(1),
   RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(600),
   RATE_LIMIT_CREATE_MAX: z.coerce.number().int().min(1).default(30),
-  /** Durée pendant laquelle un code à 4 chiffres reste réservé à une session. */
+  /** Durée pendant laquelle une session reste visible et joignable après son heure prévue. */
   SESSION_TTL_HOURS: z.coerce.number().int().min(1).max(24 * 30).default(48),
   LOBBY_CLOSED_HOURS: z.coerce.number().min(0).max(24 * 7).default(12),
   CROUSTY_PHONE: z.string().regex(/^[0-9+ ]{6,20}$/).default('0554796424'),

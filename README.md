@@ -2,7 +2,7 @@
 
 Application web (PWA) pour organiser **des commandes groupées de Crousty** et **des sorties Tacos / Kebab** entre amis — **sans compte, sans mot de passe**, avec une synchronisation **en temps réel**.
 
-> Tu entres ton prénom, tu crées une session, tu partages le code à 4 chiffres (`0554`), tout le monde ajoute sa commande et la liste se met à jour en direct sur tous les téléphones. Quand quelqu'un a appelé le restaurant, le créateur clôture la commande.
+> Tu entres ton prénom, tu crées une session, tu partages le lien (ou les autres la retrouvent directement sur l'accueil), tout le monde ajoute sa commande et la liste se met à jour en direct sur tous les téléphones. Quand quelqu'un a appelé le restaurant, le créateur clôture la commande.
 ---
 
 ## Sommaire
@@ -26,9 +26,9 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 
 **Accès sans compte**
 - Saisie du prénom / pseudo, mémorisé dans le navigateur.
-- Création d'une session → code unique à **4 chiffres**, jamais dupliqué parmi les sessions actives.
-- Rejoindre via le code (accueil) ou via le **lien partagé** (`/session/0554`).
-- Boutons **Copier le code** et **Partager le lien** (partage natif sur mobile).
+- Les sessions en cours sont listées **en direct sur l'accueil** : un clic pour rejoindre.
+- Chaque session a son **lien** (`/session/<identifiant>`) à partager.
+- Boutons **Copier le lien** et **Partager** (partage natif sur mobile).
 
 **Crousty**
 - 4 produits : Nature, Piquant, Sucré, Sucré Piquant (cartes illustrées + bouton *Ajouter*).
@@ -78,7 +78,7 @@ crousty-kebab/
 │   │   ├── middleware/      Validation Zod, erreurs, rate limiting
 │   │   ├── sockets/         Rooms Socket.IO + diffusion des événements
 │   │   ├── schemas/         Schémas Zod
-│   │   ├── utils/           Jetons, codes, erreurs
+│   │   ├── utils/           Jetons, erreurs
 │   │   ├── app.ts           Application Express (testable)
 │   │   └── server.ts        Serveur HTTP + Socket.IO
 │   ├── tests/               Tests d'intégration (vraie base PostgreSQL)
@@ -87,7 +87,7 @@ crousty-kebab/
 ├── frontend/                Application Angular (PWA)
 │   ├── src/app/
 │   │   ├── core/            API, temps réel, identité locale, toasts, modèles
-│   │   ├── shared/          Icônes, modale, partage du code
+│   │   ├── shared/          Icônes, modale, partage du lien
 │   │   └── features/        home · create · session (Crousty / Tacos-Kebab)
 │   ├── public/              Manifest, icônes, illustrations
 │   ├── ngsw-config.json     Stratégie de cache du service worker
@@ -99,9 +99,9 @@ crousty-kebab/
 
 **Flux d'une action** : le client appelle l'API REST → validation **Zod** → vérification des **permissions** (jetons) → écriture **transactionnelle** dans PostgreSQL → lecture de l'état public → **diffusion Socket.IO** à la room `session:<id>`. Les sockets ne servent qu'à écouter : aucune écriture ne passe par eux.
 
-**Modèle de données** : `Session` (code, type, statut, heure prévue, `creatorTokenHash`, `expiresAt`…), `Participant` (nom unique par session, `tokenHash`), `Order` (propriétaire `participantId` + destinataire `targetName`), `Participation` (unique par participant et session). Clés étrangères, index, contraintes `CHECK` (format du code, quantité 1–20, cohérence statut / `closedAt`).
+**Modèle de données** : `Session` (type, statut, heure prévue, `creatorTokenHash`, `expiresAt`…), `Participant` (nom unique par session, `tokenHash`), `Order` (propriétaire `participantId` + destinataire `targetName`), `Participation` (unique par participant et session). Clés étrangères, index, contraintes `CHECK` (quantité 1–20, cohérence statut / `closedAt`).
 
-**Unicité des codes** : l'attribution se fait dans une transaction protégée par un verrou PostgreSQL (`pg_advisory_xact_lock`) ; un code n'est réservé que pour les sessions **actives** (`expiresAt`, 48 h par défaut après l'heure prévue). Les sessions expirées restent en base (historique) mais libèrent leur code.
+**Identification des sessions** : chaque session est identifiée par son UUID, utilisé dans l'URL (`/session/<id>`). Une session reste **active** jusqu'à `expiresAt` (48 h par défaut après l'heure prévue) : au-delà, elle disparaît de l'accueil et ne peut plus être rejointe, mais reste en base (historique).
 
 ---
 
@@ -190,7 +190,7 @@ npm test                          # Vitest
 npm run typecheck                 # vérifie aussi les types des tests
 ```
 
-Couverture fonctionnelle : création de session, codes uniques (création concurrente + espace de codes saturé), réutilisation après expiration, rejoindre, nom déjà pris / reprise d'identité, commandes pour soi / un autre / un nouveau nom, validation, modification et suppression, permissions (propriétaire / créateur / intrus), clôture et réouverture, refus après clôture, participations Tacos / Kebab, non-exposition des jetons, en-têtes de sécurité, **synchronisation Socket.IO** (diffusion à la room, isolation des rooms, aucune diffusion en cas de refus, récupération après reconnexion).
+Couverture fonctionnelle : création de session, expiration, rejoindre, nom déjà pris / reprise d'identité, commandes pour soi / un autre / un nouveau nom, validation, modification et suppression, permissions (propriétaire / créateur / intrus), clôture et réouverture, refus après clôture, participations Tacos / Kebab, non-exposition des jetons, en-têtes de sécurité, **synchronisation Socket.IO** (diffusion à la room, isolation des rooms, aucune diffusion en cas de refus, récupération après reconnexion).
 
 **Frontend**
 
@@ -212,8 +212,9 @@ Toutes les routes sont préfixées par `/api`. Les jetons sont transmis **unique
 | GET | `/health` | Healthcheck (inclut la base) | — |
 | GET | `/config` | Numéro du restaurant Crousty | — |
 | POST | `/sessions` | Créer une session → renvoie l'état + `participantToken` + `creatorToken` (une seule fois) | — |
-| GET | `/sessions/:code` | État public de la session active | — |
-| POST | `/sessions/join` | Rejoindre `{ code, name }` → `participantToken` | — |
+| GET | `/sessions` | Sessions affichées sur l'accueil | — |
+| GET | `/sessions/:id` | État public de la session | — |
+| POST | `/sessions/:id/join` | Rejoindre `{ name }` → `participantToken` | — |
 | POST | `/sessions/:id/close` | Clôturer | Créateur |
 | POST | `/sessions/:id/reopen` | Rouvrir | Créateur |
 | GET | `/sessions/:id/orders` | Lister les commandes | — |

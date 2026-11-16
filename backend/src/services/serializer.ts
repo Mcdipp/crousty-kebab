@@ -42,7 +42,6 @@ export async function loadPublicState(sessionId: string, db: Tx | typeof prisma 
     revision: Date.now(),
     session: {
       id: s.id,
-      code: s.code,
       type: s.type,
       foodChoice: s.foodChoice,
       scheduledAt: s.scheduledAt.toISOString(),

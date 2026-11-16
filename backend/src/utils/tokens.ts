@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 /** Jeton secret aléatoire (256 bits) encodé en base64url. */
 export function generateToken(): string {
@@ -16,11 +16,6 @@ export function verifyToken(token: string | undefined, storedHash: string): bool
   const a = Buffer.from(hashToken(token), 'hex');
   const b = Buffer.from(storedHash, 'hex');
   return a.length === b.length && timingSafeEqual(a, b);
-}
-
-/** Code de session à 4 chiffres (0000–9999), généré de façon cryptographiquement sûre. */
-export function randomSessionCode(): string {
-  return randomInt(0, 10_000).toString().padStart(4, '0');
 }
 
 /** Normalise un nom pour les comparaisons d'unicité. */

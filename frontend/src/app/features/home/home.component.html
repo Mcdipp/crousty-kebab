@@ -53,7 +53,6 @@
             <div class="sess__body">
               <div class="sess__title">
                 <strong>{{ s.type === 'CROUSTY' ? 'Crousty' : 'Tacos / Kebab' }}</strong>
-                <span class="sess__code">#{{ s.code }}</span>
               </div>
               <div class="sess__meta">
                 <span><app-icon name="clock" [size]="14" /> {{ formatHour(s.scheduledAt) }}</span>
@@ -78,7 +77,7 @@
                     [class.btn--red]="s.status === 'OPEN' && s.type === 'TACOS_KEBAB'"
                     [class.btn--ghost]="s.status === 'CLOSED'"
                     (click)="openSession(s)"
-                    [attr.aria-label]="(s.status === 'CLOSED' ? 'Voir la session ' : isMember(s) ? 'Ouvrir la session ' : 'Rejoindre la session ') + (s.type === 'CROUSTY' ? 'Crousty ' : 'Tacos Kebab ') + s.code">
+                    [attr.aria-label]="(s.status === 'CLOSED' ? 'Voir la session ' : isMember(s) ? 'Ouvrir la session ' : 'Rejoindre la session ') + (s.type === 'CROUSTY' ? 'Crousty' : 'Tacos Kebab') + ' de ' + s.creatorName">
               @if (s.status === 'CLOSED') { Voir }
               @else if (isMember(s)) { Ouvrir <app-icon name="arrowRight" [size]="16" /> }
               @else { <app-icon name="login" [size]="16" /> Rejoindre }
@@ -112,34 +111,5 @@
         </button>
       </div>
     </article>
-  </section>
-
-
-  <section class="join card" aria-labelledby="join-title">
-    <h2 id="join-title">Tu as un code ?</h2>
-    <p class="muted">Un pote t’a envoyé un code à 4 chiffres ? Entre-le ici.</p>
-    <form class="join__form" (submit)="$event.preventDefault(); join()">
-      <label for="code" class="visually-hidden">Code de session à 4 chiffres</label>
-      <input
-        id="code"
-        class="input input--code"
-        type="text"
-        inputmode="numeric"
-        pattern="[0-9]*"
-        autocomplete="one-time-code"
-        maxlength="4"
-        placeholder="0000"
-        [value]="code()"
-        (input)="onCodeInput($any($event.target).value)"
-        [attr.aria-invalid]="!!joinError()"
-        aria-describedby="join-error"
-      />
-      <button type="submit" class="btn btn--lg btn--dark" [disabled]="joining()">
-        @if (joining()) { Recherche… } @else { <app-icon name="login" /> Rejoindre avec le code }
-      </button>
-    </form>
-    @if (joinError()) {
-      <p id="join-error" class="error-text" role="alert">{{ joinError() }}</p>
-    }
   </section>
 </div>

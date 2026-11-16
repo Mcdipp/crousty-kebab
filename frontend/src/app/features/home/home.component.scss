@@ -30,12 +30,6 @@
 .cat__body p { color: var(--ink-70); flex: 1; }
 .cat__body h2 { font-size: 1.6rem; }
 
-.join { margin-top: 20px; }
-.join__form {
-  display: grid; gap: 10px; grid-template-columns: 1fr;
-  @media (min-width: 560px) { grid-template-columns: 200px 1fr; }
-}
-
 .section-title { margin: 24px 0 12px; }
 
 /* ===== Sessions en cours ===== */
@@ -65,8 +59,6 @@
 .sess--tacos .sess__img { background: #f6d7c7; }
 .sess__body { min-width: 0; }
 .sess__title { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; strong { font: 800 1.1rem var(--font-display); } }
-.sess__code { font: 800 1rem var(--font-display); color: var(--orange-600); }
-.sess--tacos .sess__code { color: var(--red-dark); }
 .sess__meta {
   display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: .85rem; color: var(--ink-70);
   span { display: inline-flex; align-items: center; gap: 4px; }
@@ -83,7 +75,6 @@
 .sess--closed {
   background: #ecebea; border-left-color: #a8a29e; color: var(--ink-70);
   .sess__img { filter: grayscale(1); opacity: .55; }
-  .sess__code { color: var(--ink-50); }
   .sess__title strong { color: var(--ink-70); }
 }
 

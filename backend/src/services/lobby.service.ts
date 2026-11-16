@@ -4,7 +4,6 @@ import type { PublicSessionState } from './serializer.js';
 
 export interface SessionSummary {
     id: string;
-    code: string;
     type: 'CROUSTY' | 'TACOS_KEBAB';
     foodChoice: 'TACOS' | 'KEBAB' | 'BOTH' | null;
     scheduledAt: string;
@@ -22,7 +21,6 @@ export function summarize (state: PublicSessionState): SessionSummary{
     const s = state.session;
     return{
         id: s.id,
-        code: s.code,
         type: s.type,
         foodChoice: s.foodChoice,
         scheduledAt: s.scheduledAt,
@@ -58,7 +56,6 @@ export async function listLobbySessions(): Promise<SessionSummary[]>{
         take: 60,
         select: {
             id: true,
-            code: true,
             type: true,
             foodChoice: true,
             scheduledAt: true,
@@ -76,7 +73,6 @@ export async function listLobbySessions(): Promise<SessionSummary[]>{
     return rows
         .map((r) => ({
             id: r.id,
-            code: r.code,
             type: r.type,
             foodChoice: r.foodChoice,
             scheduledAt: r.scheduledAt.toISOString(),

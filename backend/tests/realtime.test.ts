@@ -65,7 +65,7 @@ describe('Synchronisation Socket.IO', () => {
     const outsider = await connect();
     const ackA = await joinRoom(a, sessionId);
     expect(ackA.ok).toBe(true);
-    expect(ackA.state.session.code).toBe(created.state.session.code);
+    expect(ackA.state.session.id).toBe(sessionId);
     await joinRoom(b, sessionId);
 
     let outsiderGotSomething = false;
@@ -74,7 +74,7 @@ describe('Synchronisation Socket.IO', () => {
     // participant:joined
     const joinedA = nextEvent(a, 'participant:joined');
     const joinedB = nextEvent(b, 'participant:joined');
-    const lucas = (await http_.post('/api/sessions/join').send({ code: created.state.session.code, name: 'Lucas' }).expect(200)).body;
+    const lucas = (await http_.post(`/api/sessions/${sessionId}/join`).send({ name: 'Lucas' }).expect(200)).body;
     const [pa, pb] = await Promise.all([joinedA, joinedB]);
     expect(pa.actor).toBe('Lucas');
     expect(pb.state.participants).toHaveLength(2);

@@ -8,8 +8,8 @@ afterAll(() => prisma.$disconnect());
 async function setup() {
   const thomas = await createCrousty('Thomas');
   const sessionId = thomas.state.session.id as string;
-  const lucas = await join(thomas.state.session.code, 'Lucas');
-  const mehdi = await join(thomas.state.session.code, 'Mehdi');
+  const lucas = await join(thomas.state.session.id, 'Lucas');
+  const mehdi = await join(thomas.state.session.id, 'Mehdi');
   return { thomas, lucas, mehdi, sessionId };
 }
 

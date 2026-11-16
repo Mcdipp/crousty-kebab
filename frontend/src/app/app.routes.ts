@@ -19,7 +19,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/create/create-session.component').then((m) => m.CreateSessionComponent),
   },
   {
-    path: 'session/:code',
+    path: 'session/:id',
     title: 'Session — Crousty & Kebab',
     loadComponent: () => import('./features/session/session-page.component').then((m) => m.SessionPageComponent),
   },

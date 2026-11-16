@@ -8,7 +8,7 @@ import { RealtimeService, type LobbyHandlers } from '../../core/realtime.service
 import { HomeComponent } from './home.component';
 
 const summary = (over: Partial<SessionSummary>): SessionSummary => ({
-  id: 's1', code: '0554', type: 'CROUSTY', foodChoice: null, scheduledAt: new Date().toISOString(), description: null,
+  id: 's1', type: 'CROUSTY', foodChoice: null, scheduledAt: new Date().toISOString(), description: null,
   status: 'OPEN', creatorName: 'Thomas', createdAt: '', closedAt: null, participantCount: 2, itemCount: 3, revision: 1,
   ...over,
 });
@@ -58,17 +58,17 @@ describe('HomeComponent', () => {
   });
 
   it('affiche les sessions en direct, ouvertes en premier et clôturées en gris', async () => {
-    const f = await create([summary({ id: 'a', code: '1111', status: 'CLOSED', closedAt: new Date().toISOString() })]);
-    rt.handlers!.onSession(summary({ id: 'b', code: '2222', type: 'TACOS_KEBAB', itemCount: 1 }));
+    const f = await create([summary({ id: 'a', creatorName: 'Alice', status: 'CLOSED', closedAt: new Date().toISOString() })]);
+    rt.handlers!.onSession(summary({ id: 'b', creatorName: 'Bilal', type: 'TACOS_KEBAB', itemCount: 1 }));
     await f.whenStable();
     const items = [...(f.nativeElement as HTMLElement).querySelectorAll('.sess')];
-    expect(items.map((i) => i.querySelector('.sess__code')!.textContent)).toEqual(['#2222', '#1111']);
+    expect(items.map((i) => i.querySelector('.sess__meta strong')!.textContent)).toEqual(['Bilal', 'Alice']);
     expect(items[1]!.classList.contains('sess--closed')).toBe(true);
     expect(items[0]!.textContent).toContain('Rejoindre');
     expect(items[1]!.textContent).toContain('Voir');
 
     // La session ouverte se ferme en direct → passe en gris
-    rt.handlers!.onSession(summary({ id: 'b', code: '2222', type: 'TACOS_KEBAB', status: 'CLOSED', closedAt: new Date().toISOString(), revision: 2 }));
+    rt.handlers!.onSession(summary({ id: 'b', creatorName: 'Bilal', type: 'TACOS_KEBAB', status: 'CLOSED', closedAt: new Date().toISOString(), revision: 2 }));
     await f.whenStable();
     expect((f.nativeElement as HTMLElement).querySelectorAll('.sess--closed').length).toBe(2);
   });
@@ -84,14 +84,14 @@ describe('HomeComponent', () => {
 
     f.componentInstance.onNameInput('Lucas');
     f.componentInstance.openSession(s);
-    expect(nav).toHaveBeenCalledWith(['/session', '0554'], { queryParams: { rejoindre: 1 } });
+    expect(nav).toHaveBeenCalledWith(['/session', 's1'], { queryParams: { rejoindre: 1 } });
   });
 
   it('permet de voir une session clôturée sans prénom', async () => {
     const f = await create([summary({ status: 'CLOSED', closedAt: new Date().toISOString() })]);
     const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     f.componentInstance.openSession(f.componentInstance.sessions()[0]!);
-    expect(nav).toHaveBeenCalledWith(['/session', '0554']);
+    expect(nav).toHaveBeenCalledWith(['/session', 's1']);
   });
 
   it('exige un prénom avant de créer une session', async () => {
@@ -103,25 +103,5 @@ describe('HomeComponent', () => {
     f.componentInstance.create('crousty');
     expect(nav).toHaveBeenCalledWith(['/creer', 'crousty']);
     expect(localStorage.getItem('ck:name')).toBe('Thomas');
-  });
-
-  it('garde la possibilité de rejoindre avec un code', async () => {
-    const f = await create();
-    const c = f.componentInstance;
-    c.onNameInput('Lucas');
-    c.onCodeInput('12a');
-    expect(c.code()).toBe('12');
-    await c.join();
-    expect(c.joinError()).toContain('4 chiffres');
-
-    c.onCodeInput('9999');
-    const p = c.join();
-    http.expectOne('/api/sessions/9999').flush(
-      { error: { code: 'NOT_FOUND', message: 'Aucune session trouvée avec ce code.' } },
-      { status: 404, statusText: 'Not Found' },
-    );
-    await p;
-    expect(c.joinError()).toContain('Aucune session');
-    http.verify();
   });
 });

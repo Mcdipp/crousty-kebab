@@ -23,7 +23,6 @@ const optionalText = (max: number) =>
     .nullish()
     .transform((v) => v ?? null);
 
-export const sessionCodeSchema = z.string().regex(/^\d{4}$/, 'Le code doit contenir 4 chiffres.');
 export const uuidSchema = z.uuid('Identifiant invalide.');
 
 export const croustyProductSchema = z.enum(['NATURE', 'PIQUANT', 'SUCRE', 'SUCRE_PIQUANT']);
@@ -51,7 +50,6 @@ export const createSessionSchema = z
 
 export const joinSessionSchema = z
   .object({
-    code: sessionCodeSchema,
     name: nameSchema,
     /** Jeton déjà détenu par ce navigateur, pour reprendre son identité. */
     participantToken: z.string().max(100).optional(),
@@ -85,7 +83,6 @@ export const participationSchema = z
   .strict();
 
 export const sessionIdParams = z.object({ id: uuidSchema });
-export const codeParams = z.object({ code: sessionCodeSchema });
 export const participationParams = z.object({ id: uuidSchema, participantId: uuidSchema });
 
 export type CreateSessionInput = z.output<typeof createSessionSchema>;
