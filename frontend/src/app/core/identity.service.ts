@@ -4,7 +4,7 @@ export interface SessionIdentity {
   participantId: string;
   participantToken: string;
   name: string;
-  /** Jeton secret de gestion — uniquement pour le créateur de la session. */
+  /** Jeton secret de gestion - uniquement pour le créateur de la session. */
   creatorToken?: string;
 }
 

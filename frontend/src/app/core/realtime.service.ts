@@ -26,6 +26,7 @@ const EVENTS: RealtimeEvent[] = [
 ];
 
 export type ConnectionStatus = 'connecting' | 'online' | 'offline';
+export type KlaxonDir = 'haut' | 'bas';
 
 export interface LobbyHandlers {
   /** Liste complète (à la connexion / reconnexion). */
@@ -50,6 +51,16 @@ export class RealtimeService {
   private sessionId: string | null = null;
   private handlers: RealtimeHandlers | null = null;
   private lobby: LobbyHandlers | null = null;
+  private klaxonHandler: ((dir: KlaxonDir) => void) | null = null;
+
+  /** Klaxons déclenchés par les autres visiteurs de l'accueil (easter egg). */
+  onKlaxon(handler: (dir: KlaxonDir) => void): void {
+    this.klaxonHandler = handler;
+  }
+
+  sendKlaxon(dir: KlaxonDir): void {
+    this.socket?.emit('klaxon', { dir });
+  }
 
   watchLobby(handlers: LobbyHandlers): () => void {
     this.lobby = handlers;
@@ -116,6 +127,9 @@ export class RealtimeService {
     }
     socket.on('lobby:session', (summary: SessionSummary) => {
       if (summary?.id) this.lobby?.onSession(summary);
+    });
+    socket.on('klaxon', (payload: { dir?: unknown }) => {
+      if (this.lobby && (payload?.dir === 'haut' || payload?.dir === 'bas')) this.klaxonHandler?.(payload.dir);
     });
     // Retour au premier plan sur mobile : on resynchronise.
     if (typeof document !== 'undefined') {

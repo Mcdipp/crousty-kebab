@@ -24,9 +24,9 @@
       <div class="banner__meta">
         <span class="meta"><app-icon name="clock" [size]="18" /> {{ isTacos() ? 'Rendez-vous' : 'Commande prévue' }} : <strong>{{ when() }}</strong></span>
         @if (session.status === 'OPEN') {
-          <span class="badge badge--open">● {{ isTacos() ? 'Inscriptions ouvertes' : 'OPEN — Commandes ouvertes' }}</span>
+          <span class="badge badge--open">● {{ isTacos() ? 'Inscriptions ouvertes' : 'OPEN - Commandes ouvertes' }}</span>
         } @else {
-          <span class="badge badge--closed"><app-icon name="lock" [size]="14" /> CLOSED — Clôturée</span>
+          <span class="badge badge--closed"><app-icon name="lock" [size]="14" /> CLOSED - Clôturée</span>
         }
       </div>
       <p class="banner__by">Organisé par <strong>{{ session.creatorName }}</strong>
@@ -38,7 +38,7 @@
       @if (!isTacos()) {
         <a class="phone" [href]="'tel:' + croustyPhone()">
           <app-icon name="phone" [size]="22" />
-          <span><small>Numéro à appeler</small><strong>{{ phoneDisplay() }}</strong></span>
+          <span><small>Oui allo la suite ??</small><strong>{{ phoneDisplay() }}</strong></span>
         </a>
       }
     </div>
@@ -98,7 +98,7 @@
           } @else {
             <p class="muted">Quand tu as appelé le restaurant, clôture la commande : plus personne ne pourra la modifier.</p>
             <button type="button" class="btn btn--lg btn--block btn--red" (click)="confirmClose.set(true)" [disabled]="store.busy()">
-              <app-icon name="phone" /> J’AI APPELÉ LE RESTAURANT — FERMER LA COMMANDE
+              <app-icon name="phone" /> J’AI APPELÉ LE RESTAURANT - FERMER LA COMMANDE
             </button>
           }
         } @else {

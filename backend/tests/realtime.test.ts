@@ -79,7 +79,7 @@ describe('Synchronisation Socket.IO', () => {
     expect(pa.actor).toBe('Lucas');
     expect(pb.state.participants).toHaveLength(2);
 
-    // order:created — l'état diffusé reflète la base
+    // order:created - l'état diffusé reflète la base
     const created1 = nextEvent(b, 'order:created');
     await http_
       .post(`/api/sessions/${sessionId}/orders`)
@@ -151,6 +151,40 @@ describe('Synchronisation Socket.IO', () => {
       .set('X-Participant-Token', t.participantToken)
       .expect(200);
     expect((await left).data.name).toBe('Yanis');
+  });
+
+  it("relaie le klaxon aux autres visiteurs de l'accueil uniquement", async () => {
+    const [sender, other, outsider] = await Promise.all([connect(), connect(), connect()]);
+    await sender.timeout(3000).emitWithAck('lobby:join', {});
+    await other.timeout(3000).emitWithAck('lobby:join', {});
+
+    let senderEcho = false;
+    let outsiderHeard = false;
+    sender.on('klaxon', () => (senderEcho = true));
+    outsider.on('klaxon', () => (outsiderHeard = true));
+
+    const heard = nextEvent(other, 'klaxon');
+    sender.emit('klaxon', { dir: 'haut' });
+    expect(await heard).toEqual({ dir: 'haut' });
+
+    // Anti-spam : un second coup immédiat est ignoré, hors accueil aussi.
+    let count = 0;
+    other.on('klaxon', () => count++);
+    sender.emit('klaxon', { dir: 'bas' });
+    sender.emit('klaxon', { dir: 'haut' });
+    outsider.emit('klaxon', { dir: 'bas' });
+    await new Promise((r) => setTimeout(r, 200));
+    expect(count).toBe(0);
+    expect(senderEcho).toBe(false);
+    expect(outsiderHeard).toBe(false);
+
+    // Basculer de haut en bas sans relâcher passe après un court délai, pas la même direction.
+    const flipped = nextEvent(other, 'klaxon');
+    sender.emit('klaxon', { dir: 'haut' });
+    sender.emit('klaxon', { dir: 'bas' });
+    expect(await flipped).toEqual({ dir: 'bas' });
+    await new Promise((r) => setTimeout(r, 100));
+    expect(count).toBe(1);
   });
 
   it('refuse de rejoindre une room invalide et permet de récupérer l’état après reconnexion', async () => {

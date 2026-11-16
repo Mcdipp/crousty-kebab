@@ -8,7 +8,7 @@
 .hero__kicker {
   color: var(--orange); font-weight: 800; text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; margin-bottom: 8px;
 }
-.hero h1 { max-width: 15ch; }
+.hero h1 { text-wrap: balance; }
 .name-field { max-width: 480px; margin: 0; }
 .input--hero { min-height: 58px; font-size: 1.15rem; font-weight: 600; border-color: transparent; }
 .error-text--light { color: #ffb4a0; }

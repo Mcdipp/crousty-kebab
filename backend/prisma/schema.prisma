@@ -1,4 +1,4 @@
-// Modèle de données — Crousty & Kebab
+// Modèle de données - Crousty & Kebab
 generator client {
   provider     = "prisma-client"
   output       = "../src/generated/prisma"

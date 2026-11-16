@@ -1,6 +1,6 @@
-# Crousty & Kebab — Commandes pour dejeuner au wokami de place Ravezies à Bordeaux
+# Crousty & Kebab - Commandes pour dejeuner au wokami de place Ravezies à Bordeaux
 
-Application web (PWA) pour organiser **des commandes groupées de Crousty** et **des sorties Tacos / Kebab** entre étudiants — **sans compte, sans mot de passe**, avec une synchronisation **en temps réel**.
+Application web (PWA) pour organiser **des commandes groupées de Crousty** et **des sorties Tacos / Kebab** entre étudiants - **sans compte, sans mot de passe**, avec une synchronisation **en temps réel**.
 
 > Tu entres ton prénom, tu crées une session, tu partages le lien (ou les autres la retrouvent directement sur l'accueil), tout le monde ajoute sa commande et la liste se met à jour en direct sur tous les téléphones. Quand quelqu'un a appelé le restaurant, la personne qui a créé la session la clôture.
 ---
@@ -38,14 +38,14 @@ Application web (PWA) pour organiser **des commandes groupées de Crousty** et *
 - Chacun modifie / supprime **ses** commandes ; le créateur gère **toutes** les commandes.
 - Numéro du restaurant à appeler affiché en grand (lien `tel:`), configurable via `CROUSTY_PHONE`.
 
-**Tacos / Kebab** — un simple « demain on y va ? », pas une commande
+**Tacos / Kebab** - un simple « demain on y va ? », pas une commande
 - Sortie avec un jour (aujourd'hui, demain ou un autre jour de la semaine), une heure de rendez-vous et une destination : Tacos, Kebab ou à décider.
 - « Qui vient ? » : dire « J'y vais ! » avec un petit mot facultatif (« j'arrive vers 12h15 »), ou se retirer.
 - Nombre de personnes qui viennent et liste de celles qui n'ont pas encore répondu.
 - La personne qui organise peut clôturer puis rouvrir les inscriptions.
 
 **Clôture de commande**
-- Bouton **« J'AI APPELÉ LE RESTAURANT — FERMER LA COMMANDE »** (réservé au créateur) avec confirmation.
+- Bouton **« J'AI APPELÉ LE RESTAURANT - FERMER LA COMMANDE »** (réservé au créateur) avec confirmation.
 - Statut `OPEN` / `CLOSED`, heure de clôture enregistrée, message « Commande clôturée ! Le restaurant a été contacté. Merci à tous ! » affiché instantanément chez tous.
 - Plus aucun ajout / modification / suppression (vérifié côté serveur). Le créateur peut **rouvrir**.
 
@@ -205,7 +205,7 @@ npm start                         # http://localhost:4200 (proxy /api et /socket
 
 ## Tests
 
-**Backend** — tests d'intégration sur une vraie base PostgreSQL dédiée (le nom doit contenir `test`) :
+**Backend** - tests d'intégration sur une vraie base PostgreSQL dédiée (le nom doit contenir `test`) :
 
 ```bash
 cd backend
@@ -234,15 +234,15 @@ Toutes les routes sont préfixées par `/api`. Les jetons sont transmis **unique
 
 | Méthode | Route | Description | Autorisation |
 |---|---|---|---|
-| GET | `/health` | Healthcheck (inclut la base) | — |
-| GET | `/config` | Numéro du restaurant Crousty | — |
-| POST | `/sessions` | Créer une session → renvoie l'état + `participantToken` + `creatorToken` (une seule fois) | — |
-| GET | `/sessions` | Sessions affichées sur l'accueil | — |
-| GET | `/sessions/:id` | État public de la session | — |
-| POST | `/sessions/:id/join` | Rejoindre `{ name }` → `participantToken` | — |
+| GET | `/health` | Healthcheck (inclut la base) | - |
+| GET | `/config` | Numéro du restaurant Crousty | - |
+| POST | `/sessions` | Créer une session → renvoie l'état + `participantToken` + `creatorToken` (une seule fois) | - |
+| GET | `/sessions` | Sessions affichées sur l'accueil | - |
+| GET | `/sessions/:id` | État public de la session | - |
+| POST | `/sessions/:id/join` | Rejoindre `{ name }` → `participantToken` | - |
 | POST | `/sessions/:id/close` | Clôturer | Créateur |
 | POST | `/sessions/:id/reopen` | Rouvrir | Créateur |
-| GET | `/sessions/:id/orders` | Lister les commandes | — |
+| GET | `/sessions/:id/orders` | Lister les commandes | - |
 | POST | `/sessions/:id/orders` | Ajouter `{ targetName, productType, quantity, notes? }` | Participant |
 | PATCH | `/orders/:id` | Modifier | Propriétaire ou créateur |
 | DELETE | `/orders/:id` | Supprimer | Propriétaire ou créateur |
@@ -286,7 +286,7 @@ Chaque événement transporte `{ state, actor, data }` où `state` est l'état p
 ## Limites connues
 
 - L'identité est liée au navigateur : vider ses données ou changer de téléphone fait perdre ses droits (le créateur perd alors la possibilité de clôturer). Il suffit de rejoindre avec un autre pseudo pour continuer à participer.
-- Une seule instance du backend est prévue (Socket.IO sans adaptateur Redis) — largement suffisant pour l'usage prévu (quelques dizaines d'étudiants).
+- Une seule instance du backend est prévue (Socket.IO sans adaptateur Redis) - largement suffisant pour l'usage prévu (quelques dizaines d'étudiants).
 - Les illustrations sont des SVG originaux ; tu peux les remplacer par de vraies photos dans `frontend/public/images/` (mêmes noms de fichiers).
 
 ---

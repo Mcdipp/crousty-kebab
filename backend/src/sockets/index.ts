@@ -8,11 +8,16 @@ import { listLobbySessions } from '../services/lobby.service.js';
 import { LOBBY_ROOM, roomOf, setIo } from './realtime.js';
 
 const joinPayload = z.object({ sessionId: z.uuid() });
+const klaxonPayload = z.object({ dir: z.enum(['haut', 'bas']) });
+/** Délai minimal entre deux coups de klaxon d'un même client, dans la même direction… */
+export const KLAXON_COOLDOWN_MS = 600;
+/** …et quand on bascule le levier de haut en bas (ou l'inverse) sans le relâcher. */
+export const KLAXON_FLIP_COOLDOWN_MS = 150;
 
 type Ack = (res: { ok: true; state: unknown } | { ok: false; error: string }) => void;
 
 /**
- * Les clients ne peuvent qu'ÉCOUTER : toute écriture passe par l'API REST,
+ * Les clients ne peuvent qu'ÉCOUTER (hormis le klaxon de l'accueil) : toute écriture passe par l'API REST,
  * qui valide, persiste puis diffuse. Après reconnexion, le client renvoie
  * `session:join` et reçoit l'état complet à jour dans l'accusé de réception.
  */
@@ -63,6 +68,19 @@ export function attachSockets(httpServer: HttpServer): Server {
 
     socket.on('lobby:leave', async () => {
       await socket.leave(LOBBY_ROOM);
+    });
+
+    // Easter egg : le levier de l'accueil fait klaxonner tous les autres visiteurs de l'accueil.
+    // Seule exception à la règle « écriture via l'API REST » : rien n'est persisté.
+    let lastKlaxon: { dir: string; at: number } | null = null;
+    socket.on('klaxon', (raw: unknown) => {
+      const parsed = klaxonPayload.safeParse(raw);
+      if (!parsed.success || !socket.rooms.has(LOBBY_ROOM)) return;
+      const now = Date.now();
+      const wait = lastKlaxon?.dir === parsed.data.dir ? KLAXON_COOLDOWN_MS : KLAXON_FLIP_COOLDOWN_MS;
+      if (lastKlaxon && now - lastKlaxon.at < wait) return;
+      lastKlaxon = { dir: parsed.data.dir, at: now };
+      socket.to(LOBBY_ROOM).emit('klaxon', { dir: parsed.data.dir });
     });
   });
 
