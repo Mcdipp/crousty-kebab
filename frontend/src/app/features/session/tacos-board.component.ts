@@ -14,7 +14,7 @@ import { SessionStore } from './session.store';
         <h2 id="mine-h">{{ store.myParticipation() ? 'Tu viens 🙌' : 'Tu viens ?' }}</h2>
         <div class="field">
           <label for="note">Un petit mot <span class="muted">(facultatif)</span></label>
-          <input id="note" class="input" maxlength="200" placeholder="Ex : j’arrive vers 12h15, je sors de TD"
+          <input id="note" class="input" maxlength="200" placeholder="Ex : j’arrive vers 12h15, je finis de chepomaxer"
                  [value]="notes()" (input)="notes.set($any($event.target).value)" />
         </div>
         <div class="actions">

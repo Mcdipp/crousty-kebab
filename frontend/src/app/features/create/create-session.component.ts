@@ -76,7 +76,7 @@ import { IconComponent } from '../../shared/icon.component';
         <div class="field">
           <label for="desc">Description <span class="muted">(facultatif)</span></label>
           <textarea id="desc" class="textarea" name="desc" maxlength="300" [(ngModel)]="description"
-                    [placeholder]="isTacos() ? 'Ex : rendez-vous devant la BU' : 'Ex : pause déj entre deux cours'"></textarea>
+                    [placeholder]="isTacos() ? 'Ex : octogone dans le box 3' : 'Ex : duel de bib dans le wokami'"></textarea>
         </div>
 
         @if (error()) {
